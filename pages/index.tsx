@@ -67,7 +67,7 @@ const Index = () => {
 				<p className="text-[11.5px] text-zinc-500 dark:text-zinc-500 italic mb-3">
 					이 사이트의 코드는
 					<Link
-						href="https://github.com/bbahna/Portfolio"
+						href="https://github.com/jeonghyoon/Portfolio"
 						target="_blank"
 						className="p-[5px] underline dark:text-zinc-800 hover:text-teal-600 hover:dark:text-teal-600 duration-200"
 					>

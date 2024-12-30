@@ -13,7 +13,7 @@ export default function Utterances() {
 		scriptElem.src = 'https://utteranc.es/client.js';
 		scriptElem.async = true;
 		scriptElem.crossOrigin = 'anonymous';
-		scriptElem.setAttribute('repo', 'bbahna/Portfolio');
+		scriptElem.setAttribute('repo', 'jeonghyoon/Portfolio');
 		scriptElem.setAttribute('issue-term', 'pathname');
 		scriptElem.setAttribute('label', ':speech_balloon:');
 		scriptElem.setAttribute('theme', theme);

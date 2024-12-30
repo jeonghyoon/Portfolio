@@ -11,7 +11,7 @@ const Footer = () => {
 					</svg>
 				</a>
 				<a
-					href="https://github.com/bbahna"
+					href="https://github.com/jeonghyoon"
 					className="transition-transform duration-500 hover:scale-110 theme-fill-white"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">

@@ -18,19 +18,19 @@
 
 `$ npm run dev`
 
-### [🎨 Design Theme](https://github.com/bbahna/Portfolio/issues/1)
+### [🎨 Design Theme](https://github.com/jeonghyoon/Portfolio/issues/1)
 
 - logo
 - font
 - color
 
-### [🗃️ Layout 설정](https://github.com/bbahna/Portfolio/issues/2)
+### [🗃️ Layout 설정](https://github.com/jeonghyoon/Portfolio/issues/2)
 
 - navigation
 - footer
 - top buttom
 
-### [📄 UI 작업](https://github.com/bbahna/Portfolio/issues/3)
+### [📄 UI 작업](https://github.com/jeonghyoon/Portfolio/issues/3)
 
 - **main**
   - link
@@ -45,7 +45,7 @@
 - **404**
   - page
 
-### [📦 Package 추가](https://github.com/bbahna/Portfolio/issues/4)
+### [📦 Package 추가](https://github.com/jeonghyoon/Portfolio/issues/4)
 
 - tailwind plugin
 - contentlayer
@@ -53,7 +53,7 @@
 - next seo
 - +storybook
 
-### [⚡ 기능(feature)](https://github.com/bbahna/Portfolio/issues/5)
+### [⚡ 기능(feature)](https://github.com/jeonghyoon/Portfolio/issues/5)
 
 - all
   - responsive
@@ -67,11 +67,11 @@
   - categaory
   - tags
 
-### [🖌️ 효과(animation)](https://github.com/bbahna/Portfolio/issues/7)
+### [🖌️ 효과(animation)](https://github.com/jeonghyoon/Portfolio/issues/7)
 
 - [all] 처음 로딩 시, 효과
 - [posts] hover 효과
 
-### [🚀 배포(deploy)](https://www.hyoon.dev/)
+### [🚀 배포(deploy)](https://hyoon.dev/)
 
 - vercel
