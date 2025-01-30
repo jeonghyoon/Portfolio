@@ -1,0 +1,155 @@
+---
+title: 'Android SDK 34 버전 업데이트 시행착오, 라이브러리 업데이트의 중요성..'
+description: '기한 : 2024년 11월 1일 / 규정을 준수하지 않는 가장 높은 대상 API 수준은 Android 13(API 수준 33)입니다.'
+date: '2025-01-27'
+tags: ['Android', 'SDK', 'GooglePlay', 'npm', 'Library']
+category: 'React Native'
+thumbnail: /posts/android-sdk-34.png
+---
+
+> ⚠️ 기한 : 2024년 8월 31일 → 11월 1일 (연장)
+>
+> 규정을 준수하지 않는 가장 높은 대상 API 수준은 Android 13(API 수준 33)입니다.
+> 앱을 계속 업데이트하려면 다음 작업을 수행해야 합니다.
+>
+> 1. Android 14(API 수준 34) 이상을 타겟팅하도록 앱을 업데이트합니다.
+> 2. 앱의 새 버전을 프로덕션에 게시합니다. 그 전에 내부, 비공개 또는 공개 테스트를 사용해 앱을 테스트할 수 있습니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/abb5b0ec-15a5-4fd9-b5fb-f598a5ec0267/image.png)
+
+Google Play에서 targetSdk 수준 34 이상으로 하지 않으면, 새로운 버전을 출시하지 못하여, 해당 작업을 진행하게 되었다.
+
+[Google Play 앱의 대상 API 수준 요구사항 - Play Console 고객센터](https://support.google.com/googleplay/android-developer/answer/11926878?hl=ko)
+
+---
+
+## API 수준 34으로 수정하며 발생한 에러 & 변경 사항 정리
+
+### 1. 사용하지 않는 의존성 package 제거
+
+시간이 주어진 김에 그동안 사용하지 않는 패키지나 의미 없이 설치된 것들을 확인하며, 업데이트 시 문제가 되지 않도록 미리 정리하였다.
+
+따라서 기존 152MB → 130MB로 미사용 패키지 삭제만으로 앱의 크기를 축소하였다.
+
+![](https://velog.velcdn.com/images/bbahna/post/0a97dfea-307c-4b00-aa03-f62326ebf0c2/image.png)
+
+### 2. [@react-native-community/cameraroll](https://www.npmjs.com/package/@react-native-community/cameraroll) deprecated 레거시를 [@react-native-camera-roll/camera-roll](https://www.npmjs.com/package/@react-native-camera-roll/camera-roll)로 변경
+
+```javascript
+// 기존 코드
+import CameraRoll from '@react-native-community/cameraroll';
+const imageUri = await CameraRoll.save(data.uri);
+
+// 변경 코드
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
+const imageUri = await CameraRoll.saveAsset(data.uri).node.image.uri;
+```
+
+해당 이슈로 매번 `node_modules` 재설치 마다 [Error: Command failed: retriever.release();](https://github.com/react-native-cameraroll/react-native-cameraroll/issues/402) 해당 이슈가 발생되어 직접 패키지 수정을 진행해야 빌드가 가능했는데, `@react-native-camera-roll/camera-roll` 해당 라이브러리로 교체하며 레거시 최신화를 진행하였다.
+
+### 3. android API 33->34 버전 변경
+
+```java
+// android/build.gradle
+apply from: "../../node_modules/react-native/react.gradle"
+...
+android : [
+  targetSdk : 34,
+  compileSdk: 34,
+  buildTools: "30.0.3"
+],
+buildscript {
+  ext {
+    buildToolsVersion = "30.0.3"
+    compileSdkVersion = 34
+    targetSdkVersion = 34
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:7.4.2'
+  }
+}
+
+// android/gradle/wrapper/gradle-wrapper.properties
+distributionUrl=https\://services.gradle.org/distributions/gradle-7.5-all.zip
+
+// android/gradle.properties
+android.suppressUnsupportedCompileSdk=34
+```
+
+android API를 변경하는 것은 위 파일들만 수정해주면 된다. 하지만 문제는 위와 같이 수정 후 빌드가 안되는 것..! 아래와 같이 빌드를 진행하며 발견된 이슈들을 정리해 보았다.
+
+### 4. [Using flatDirs should be avoided because it doesn't support any meta-data formats](https://stackoverflow.com/questions/68215302/using-flatdirs-should-be-avoided-because-it-doesnt-support-any-meta-data-format) 같은 에러 메시지
+
+```java
+// android/app/build.gradle
+
+// 기존 코드
+repositories {
+  flatDir {
+    dirs 'libs'
+  }
+}
+
+// 변경 코드
+sourceSets {
+  main {
+    jniLibs.srcDirs = ['libs']
+  }
+}
+```
+
+flatDirs 해당 형식은 지원되지 않아 아래와 같이 변경하여 코드를 수정하였다.
+
+### 5. [@react-native-community/blur](https://www.npmjs.com/package/@react-native-community/blur) 최신 버전으로 업데이트 (3.6.0 → ^4.4.1)
+
+### 6. [react-native-reanimated](https://www.npmjs.com/package/react-native-reanimated) 최신 버전으로 업데이트 (^2.8.0 → ^2.14.0)
+
+~오래된 프로젝트라 앱에서는 `react`는 17.0.2 버전, `react-native`는 0.68.5 버전을 사용하고 있다. 따라서 호환되는 버전을 찾기 어려웠다ㅠ
+
+바로 최신 라이브러리를 적용하면 빌드가 안되는 불상사가 생기기에, chatGPT에게 물어봐 호환되는 버전을 적용해보면 이슈를 해결했다.
+
+### 7. [react-native-orientation](https://www.npmjs.com/package/react-native-orientation) 레거시 대신, 네이티브 수정으로 세로 화면 고정 적용
+
+```java
+// android/app/src/main/AndroidManifest.xml
+android:screenOrientation="portrait"
+
+// ios/app/Info.plist
+<key>UISupportedInterfaceOrientations~iphone</key>
+<array>
+  <string>UIInterfaceOrientationPortrait</string>
+</array>
+<key>UISupportedInterfaceOrientations~ipad</key>
+<array>
+  <string>UIInterfaceOrientationPortrait</string>
+  <string>UIInterfaceOrientationPortraitUpsideDown</string>
+  <string>UIInterfaceOrientationLandscapeLeft</string>
+  <string>UIInterfaceOrientationLandscapeRight</string>
+</array>
+```
+
+기존에 왜 때문인지 모르겠지만 세로로 고정하는 라이브러리를 사용하고 있었고, 이 패키지는 네이티브도 수정이 필요하고, 앱에 app.js 부분에도 설정이 되어 있었다.
+
+7년 전 마지막 업데이트로, 기존 대체할 만한 라이브러리를 찾다가 네이티브 수정만으로 간단하게 적용이 가능하여, 위와 같이 수정하여 화면 세로 고정을 진행하였다.
+
+### 8. [react-native-intent-launcher](https://www.npmjs.com/package/react-native-intent-launcher) 레거시 대신, [@yz1311/react-native-intent-launcher](https://www.npmjs.com/package/@yz1311/react-native-intent-launcher)으로 변경
+
+```javascript
+import IntentLauncher from '@yz1311/react-native-intent-launcher';
+
+// 앱 위치 권한 설정 페이지로 이동 가능
+const bundleId = DeviceInfo.getBundleId();
+IntentLauncher.startActivity({
+	action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
+	data: 'package:' + bundleId,
+	category: '',
+});
+```
+
+기존 라이브러리는 6년 전 마지막 업데이트로, 안드로이드 환경에서 특정 권한(위치 등) 설정 화면으로 이동할 수 있는 기능이였다.
+
+하지만 업데이트가 된지 시간이 지나, 찾던 중 위 라이브러리를 찾게 되었고, import 변경 만으로 호환이 가능하여 빌드에 성공하였다,,!
+
+라이브러리 업데이트가 잘 되지 않을 때, 이렇게 다른 패키지로 활용을 할 수 있어 정말 유용한 것 같다. 다행히 대체할 수 있는 라이브러리들이 있어 비교적 간단히 해결할 수 있었지만 없었을 경우에는 조금 더 시간이 걸렸을 것 같다 ㅠ
+
+이번 일로 라이브러리를 처음 도입할 때, 자주 업데이트되는 라이브러리를 사용할 것, 오픈 소스 라이브러리에 기여하여 개발자 경험에 도움이 되고 싶다는 생각이 들었다~!
