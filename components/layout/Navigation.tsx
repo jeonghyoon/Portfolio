@@ -52,7 +52,7 @@ const Navigation = () => {
 									className={`${
 										router.pathname.startsWith(`${nav.link}`)
 											? 'theme-text-main'
-											: 'relative after:absolute after:opacity-90 after:w-1/6 after:h-1 after:hover:w-full after:right-0 after:transparent hover:after:bg-teal-400 dark:hover:after:bg-emerald-500 after:bottom-[-7px] after:duration-300 after:ease-out after:mx-[45%] hover:after:mx-0'
+											: 'relative after:absolute after:opacity-90 after:w-1/6 after:h-1 after:hover:w-full after:right-0 after:transparent hover:after:bg-[#7ADCD7] dark:hover:after:bg-[#63C7C2] after:bottom-[-7px] after:duration-300 after:ease-out after:mx-[45%] hover:after:mx-0'
 									} mr-5 text-base font-medium`}
 								>
 									{nav.title}

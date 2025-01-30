@@ -8,7 +8,7 @@ interface CopyLinkBtnProps {
 }
 
 const CopyLinkBtn = ({
-	containerStyle = 'theme-bg-main-light absolute bottom-[2px] w-8 h-8 ml-3',
+	containerStyle = 'theme-bg-main-dark absolute bottom-[2px] w-8 h-8 ml-3',
 	checkIconColor = '#fff',
 	copyIconColor = '#fff',
 	iconSize = 16,

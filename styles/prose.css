@@ -34,7 +34,7 @@
 }
 
 .prose mark {
-	@apply bg-teal-400 dark:bg-emerald-600 px-[3px] rounded-sm;
+	@apply bg-[#7ADCD7] dark:bg-[#63C7C2] px-[3px] rounded-sm;
 }
 
 .prose hr {
