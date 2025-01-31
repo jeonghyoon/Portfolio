@@ -48,7 +48,7 @@ const Index = () => {
 					<p className="mb-5 text-sm dark:text-zinc-700 text-zinc-700">디자인도 하고 웹도 만들고 앱도 만드는 새럼</p>
 					{linkdata.map((data) => (
 						<Link href={data.link} key={data.title} className="w-full" target={data.link == '/home' ? '' : '_blank'}>
-							<div className="flex flex-row items-center p-4 mb-3 duration-300 bg-white rounded-xl dark:bg-white shadow-jsx hover:bg-teal-200 hover:dark:bg-teal-200">
+							<div className="flex flex-row items-center p-4 mb-3 duration-300 bg-white rounded-xl dark:bg-white shadow-jsx hover:bg-[#9aefeb]">
 								<div className="mr-4 w-[72px] h-[72px] overflow-hidden rounded-md flex justify-center">
 									<Image src={data.image} alt="로고" width={500} height={500} className="max-w-none w-auto h-[72px]" />
 								</div>
@@ -69,7 +69,7 @@ const Index = () => {
 					<Link
 						href="https://github.com/jeonghyoon/Portfolio"
 						target="_blank"
-						className="p-[5px] underline dark:text-zinc-800 hover:text-teal-600 hover:dark:text-teal-600 duration-200"
+						className="p-[5px] underline dark:text-zinc-800 hover:text-[#68aca7] duration-200"
 					>
 						여기서
 					</Link>
