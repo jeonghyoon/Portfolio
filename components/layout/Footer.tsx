@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 const Footer = () => {
 	return (
 		<footer className="flex flex-col items-center justify-center w-full pt-10 pb-6 duration-500 Ztransition ">
@@ -19,8 +21,10 @@ const Footer = () => {
 					</svg>
 				</a>
 			</div>
-			<div className="mt-4 text-sm">Copyright © 2023 Hyoon</div>
-			<div className="mt-2 text-xs theme-text-3">hyoon.dev</div>
+			<div className="mt-4 text-sm">Copyright © jeonghyoon</div>
+			<div className="mt-2 text-xs theme-text-3">
+				<Link href="/">hyoon.dev</Link>
+			</div>
 		</footer>
 	);
 };
