@@ -75,13 +75,6 @@ const Index = () => {
 					</Link>
 					확인 할 수 있어요 (*´∀`*)ゞ
 				</p>
-				<Link href="https://hits.seeyoufarm.com">
-					<img
-						className="w-[65px]"
-						alt="hits"
-						src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fhyoon.dev&count_bg=%23f3f4f6&title_bg=%23F3F4F6&icon=&icon_color=%237d7f86&title=%E0%B7%86&edge_flat=false"
-					/>
-				</Link>
 			</div>
 			<style jsx>{`
 				p {
