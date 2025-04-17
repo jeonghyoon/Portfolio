@@ -1,0 +1,39 @@
+---
+title: '📦 node_modules 변경 사항 patch-package으로 바로 적용하기'
+description: '의존성 때문에 매번 node_modules을 수정하지 말고 한번에 적용해 보자!'
+date: '2025-04-18'
+tags: ['node_modules', 'patch-package', 'third party', 'open source']
+category: 'React Native'
+thumbnail: /posts/patch-package.png
+---
+
+프로젝트에 다양한 서비스가 추가될 수록 서드파티 라이브러리가 계속 추가된다. 문제는 내 프로젝트의 react, react-native 등 버전을 올릴 때 유지보수가 되지 않은 서드파티가 있을 때 빌드가 안되는 경우가 생긴다.
+
+이 경우 서드파티 라이브러리를 node_modules에서 직접 수정해서 쓰게 되는데 이 수정된 부분을 모든 개발자들이 npm install 시 적용될 수록 있게 하는 라이브러리가 [patch-package](https://github.com/ds300/patch-package)이다.
+
+## 설치
+
+`npm i patch-package`
+
+package.json 파일에 다음 스크립트를 추가한다.
+
+```
+"scripts": {
+	// ...existing code...
+	"postinstall": "patch-package"
+ }
+```
+
+## 실행
+
+`/node_modules/{somePackage}`에서 코드 수정을 완료한 후, `npx patch-package {somePackage}` 명령어를 실행한다.
+
+패치가 완료되면 `{project}/patches` 폴더 하위에 `somePackage+0.71.2.patch` 와 같은 형식의 패치 파일이 생성된다.
+
+![](https://velog.velcdn.com/images/bbahna/post/8b030356-98a3-4330-8df9-2ff53abb899c/image.png)
+
+![](https://velog.velcdn.com/images/bbahna/post/1473a94e-d8e3-41a9-94c7-c01ceb778e24/image.png)
+
+위 파일을 git에 추가하면 다른 개발자들이 소스를 받은 후, `npm install`로 패키지를 설치할 때, 수정된 패키지들은 postinstall 스크립트를 거쳐 원본 소스에 패치 파일의 내용을 반영해 코드가 자동으로 변경된다
+
+최고시다..👍🏻
