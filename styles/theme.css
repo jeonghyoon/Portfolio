@@ -36,10 +36,6 @@
 	@apply bg-[#7ADCD7] dark:bg-[#63C7C2];
 }
 
-.theme-bg-main-light {
-	@apply bg-[#63C7C2] dark:bg-[#7ADCD7];
-}
-
 .theme-bg-main-dark {
 	@apply bg-[#4FCABC] dark:bg-[#5db0ab];
 }
