@@ -42,7 +42,7 @@ const About = () => {
 					<h2 className="mb-3 text-2xl font-semibold theme-text-2">Interested in Others</h2>
 					<ul className="ml-2">
 						<li>
-							🏋🏻‍♀️ <span className="font-medium">Exercise</span>: Running, Crossfit, Hiking
+							🏋🏻‍♀️ <span className="font-medium">Exercise</span>: Swimming, Crossfit
 						</li>
 						<li className="font-medium">✈️ Travel</li>
 						<li className="font-medium">🍲 Food, Cook</li>
