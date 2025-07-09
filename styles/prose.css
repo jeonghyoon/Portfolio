@@ -9,6 +9,10 @@
 	@apply mb-3 text-xl font-medium;
 }
 
+.prose li {
+	@apply text-zinc-700 dark:text-zinc-300;
+}
+
 .prose li::marker {
 	@apply font-bold text-slate-300 dark:text-gray-500;
 }
