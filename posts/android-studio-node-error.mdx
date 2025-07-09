@@ -1,0 +1,51 @@
+---
+title: 'Android) Build Sync, Output 에러 ~ Cannot run program "node": error=2, No such file or directory'
+description: '안드로이드 스튜디오에서 node를 찾지 못하는 현상 해결 방법'
+date: '2025-07-09'
+tags: ['Android Studio', 'Gradle', 'sync', 'output', 'node', 'bug']
+category: 'React Native'
+thumbnail: /posts/android-studio-node-error.png
+---
+
+RN 개발을 하다보면 느끼는데, Xcode도 정말 이상하지만 Android Studio도 참 이상하다.
+
+아니 갑자기 왜 노드를 못찾냐구 !! (터미널에서 node -v으로 확인했음)
+
+약간의 시간 낭비 후 아래 해결 방법을 정리 해본다. (요새 잘 되다 가끔 발생함, 주변 개발자도 같은 현상 재현됨 ㄷㄷ)
+
+## 에러 내용
+
+### sync error
+
+![](https://velog.velcdn.com/images/bbahna/post/1a6ec39f-0582-4cd1-aab2-b31fa823a943/image.png)
+
+```xml
+<!-- sync error -->
+⚠️ Cause: error=2, No such file or directory
+⚠️ A problem occurred starting process 'command 'node''
+```
+
+### run error
+
+![](https://velog.velcdn.com/images/bbahna/post/6ddc2036-e57b-4c54-a7df-6e1730e71a30/image.png)
+
+```xml
+<!-- run error -->
+⚠️ org.gradle.process.internal.ExecException: A problem occurred starting process 'command "node"
+⚠️ net.rubygrapefruit.platform.NativeException: Could not start 'node'
+⚠️ java.io.lOException: Cannot run program "node" (in directory "/Users/Code/App/android"): error=2, No such file or directory
+⚠️ java.io.lOException: error=2, No such file or directory
+⚠️ com.android.builder.errors.EvallssueException: compileSdkVersion is not specified. Please add it to build.gradle
+⚠️ Cause: error=2, No such file or directory
+```
+
+## 해결 방법
+
+1. Jetbrains Toolbox 버전 1.x를 통해 Android Studio를 설치한 경우, `open -a /Applications/Android\ Studio.app` 실행
+   Jetbrains Toolbox 버전 2.x를 통해 Android Studio를 설치한 경우, `open "/Applications/Android Studio.app”` 실행
+2. Gradle 동기화 다시 작동함 !
+   ![](https://velog.velcdn.com/images/bbahna/post/ba5e3a58-d658-4d60-952a-ba7bea5d8675/image.png)
+
+### 참고 자료
+
+[https://stackoverflow.com/questions/61922174/react-native-on-android-cannot-run-program-node-error-2-no-such-file-or-dir](https://stackoverflow.com/questions/61922174/react-native-on-android-cannot-run-program-node-error-2-no-such-file-or-dir)
