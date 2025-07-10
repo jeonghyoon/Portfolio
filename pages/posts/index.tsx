@@ -28,7 +28,7 @@ const Posts = ({ posts }: InferGetStaticPropsType<typeof getStaticProps>) => {
 		<Container>
 			<NextSeo title="Hyoon - Posts" description="배우고 알게된 것들을 기록합니다." />
 			<Title main="✍🏻 Posts" description="배우고 알게된 것들을 기록합니다." />
-			<div className="flex items-start justify-between m-3 max-md:mb-4 max-md:flex-col-reverse">
+			<div className="flex items-start justify-between m-1 max-md:mb-4 max-md:flex-col-reverse">
 				<CategoryList sellect={sellect} setSellect={setSellect} setClick={setClick} posts={posts} />
 				<Search click={click} onChange={handleSearch} onClick={clickSearch} />
 			</div>
