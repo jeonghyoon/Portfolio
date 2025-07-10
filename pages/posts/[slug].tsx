@@ -6,7 +6,7 @@ import { useMDXComponent } from 'next-contentlayer/hooks';
 import { allPosts } from 'contentlayer/generated';
 import Container from '@/components/layout/Container';
 import Utterances from '@/components/posts/Utterances';
-import CopyLinkBtn from '@/components/posts/CopyLinkBtn';
+import { TagList } from '@/components/posts/TagList';
 
 const Post = ({ post }: InferGetStaticPropsType<typeof getStaticProps>) => {
 	const MDXComponent = useMDXComponent(post!.body.code);
@@ -28,9 +28,9 @@ const Post = ({ post }: InferGetStaticPropsType<typeof getStaticProps>) => {
 							{post?.date}
 						</p>
 					</div>
-					<h1 className="mb-3 px-10 font-bold max-lg:text-[34px] text-center relative leading-[44px] break-keep">
+					<h1 className="mb-3 font-bold max-lg:text-[34px] text-center relative leading-[44px] break-keep">
 						{post?.title}
-						<CopyLinkBtn />
+						{/* <CopyLinkBtn /> */}
 					</h1>
 					<p className="mt-0 mb-0 text-lg font-normal text-center max-lg:text-base theme-text-2 break-keep">
 						{post?.description}
@@ -42,13 +42,7 @@ const Post = ({ post }: InferGetStaticPropsType<typeof getStaticProps>) => {
 				<MDXComponent />
 				<div className="flex mt-8 border-t pt-7 theme-border-light">
 					<p className="m-0 px-3 mb-1 italic leading-[26px] theme-text-2">Tags:</p>
-					<div className="flex flex-wrap">
-						{post?.tags.map((i: any) => (
-							<span key={i} className="mb-1 mr-3 italic theme-text-main-dark">
-								#{i}
-							</span>
-						))}
-					</div>
+					<TagList item={post?.tags} />
 				</div>
 			</div>
 			<Utterances />

@@ -19,7 +19,7 @@ const BoxList = ({ post }: BoxListProps) => {
 					<div className="flex items-center mb-2">
 						<p className="px-3 py-1 text-[13px] rounded-2xl theme-bg-4 mr-2 theme-text-2">{post.category}</p>
 						<p className="text-sm font-light theme-text-2">{post.date}</p>
-						<NewMaker post={post} />
+						{/* <NewMaker post={post} /> */}
 					</div>
 					<h2 className="mb-2 leading-8 text-xl font-bold theme-text-2 relative ellipsis">
 						{post.title}
