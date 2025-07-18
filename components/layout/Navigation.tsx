@@ -1,16 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import navlinks from '@/data/navlinks';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import MobileMenu from './MobileMenu';
 
-type Theme = null | 'dark' | 'light';
-
 const Navigation = () => {
 	const headerRef = useRef<HTMLElement>(null);
 	const router = useRouter();
-	const [theme, setTheme] = useState<Theme>('dark');
+	const [isDark, setIsDark] = useState<boolean>(false);
 
 	const handleScroll = () => {
 		window.scrollY > 0
@@ -18,20 +16,23 @@ const Navigation = () => {
 			: headerRef.current?.classList.remove('theme-header-shadow');
 	};
 
-	const handleTheme = () => {
-		const newTheme = theme === 'dark' ? 'light' : 'dark';
-		setTheme(newTheme);
-		window.localStorage.setItem('theme', newTheme);
-		document.body.className = newTheme;
-	};
+	const handleTheme = useCallback((theme?: boolean) => {
+		setIsDark((prev) => {
+			const changeTheme = theme ?? !prev;
+			window.localStorage.setItem('dark', String(changeTheme));
+			document.body.className = changeTheme ? 'dark' : 'light';
+			return changeTheme;
+		});
+	}, []);
 
 	useEffect(() => {
+		const stored = window.localStorage.getItem('dark');
+		handleTheme(stored === 'true');
 		window.addEventListener('scroll', handleScroll);
-		setTheme(document.body.className as Theme);
 		return () => {
 			window.removeEventListener('scroll', handleScroll);
 		};
-	}, []);
+	}, [handleTheme]);
 
 	return (
 		<header ref={headerRef} className="fixed top-0 left-0 z-20 w-full p-2 theme-bg-0 flex-0">
@@ -42,8 +43,8 @@ const Navigation = () => {
 					</Link>
 				</div>
 				<nav className="flex justify-center">
-					<button type="button" className="mr-4" onClick={handleTheme}>
-						{theme === 'dark' ? <p className="text-[22px]">🌚</p> : <p className="text-[22px]">🌝</p>}
+					<button type="button" className="mr-4" onClick={() => handleTheme()}>
+						{isDark ? <p className="text-[22px]">🌚</p> : <p className="text-[22px]">🌝</p>}
 					</button>
 					<div className="flex flex-wrap content-center max-lg:hidden">
 						{navlinks.map((nav) => (
