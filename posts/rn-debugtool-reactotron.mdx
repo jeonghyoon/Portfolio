@@ -1,0 +1,346 @@
+---
+title: 'React-Native는 F12 개발자 도구 없는데 어떻게 하지? (Reactotron 적용기)'
+description: 'api 호출, async storage, zustand 상태를 확인할 수 있는 디버그툴 reactotron'
+date: '2025-07-28'
+tags:
+  [
+    'react native',
+    '개발자 도구',
+    'reactotron',
+    'zustand',
+    'redux toolkit',
+    'api response',
+    'async storage',
+    'Android',
+    'iOS',
+    'DevTools',
+    'Flipper',
+    'ProxyMan',
+  ]
+category: 'React Native'
+thumbnail: /posts/rn-debugtool-reactotron.png
+---
+
+RN 개발자분들, 다들 디버그툴 어떤거 쓰시나요? 최근 새로운 react-native를 시작하면서 디버그툴애 대한 고민을 했었는데요.
+
+가장 많이 사용하고 또한 제가 원하는 기능들이 있는지 고민을 하다가, 저는 **reactotron**을 도입하게 되었습니다.
+
+먼저 저는 **0) 세팅 방법이 어렵지 않고**, **1) 상태관리 zustand를 보기 편해야 하고**, **2) async storage를 확인하기 편해야 하며**, **3) api 호출 디버그 또한 편해야** 하는데 위 모든 것을 충족하는 것이 바로 reactotron였습니다.
+
+이것저것 도입을 해보다 실패한 경험도 있는데, 그건 아래 [비교군](#비교군) 부분에서 확인해 주세요 :)
+
+## 프로젝트 내 패키지 추가
+
+https://www.npmjs.com/package/reactotron-react-native
+
+https://www.npmjs.com/package/reactotron-plugin-zustand
+
+```jsx
+npm i reactotron-react-native --save-dev
+npm i reactotron-plugin-zustand --save-dev
+// npm i github:aylonmuramatsu/reactotron-zustand-plugin --save-dev
+```
+
+먼저 npm 또는 본인의 패키지 매니저로 [reactotron-react-native](https://www.npmjs.com/package/reactotron-react-native)와 [reactotron-plugin-zustand](https://www.npmjs.com/package/reactotron-plugin-zustand)(옵션)을 설치해줍니다.
+
+```jsx
+// package.json
+
+"dependencies": {
+    // "reactotron-plugin-zustand": "github:aylonmuramatsu/reactotron-zustand-plugin",
+    "reactotron-plugin-zustand": "^2.0.8",
+    "reactotron-react-native": "^5.1.13",
+}
+```
+
+위 명령어로 입력해주면 이렇게 설치가 됩니다.
+
+## ReactotronConfig 생성
+
+```jsx
+// ReactotronConfig.js
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
+import reactotronZustand from 'reactotron-plugin-zustand';
+import Reactotron from 'reactotron-react-native';
+
+import { useUserStore } from '@/store/userStore';
+
+Reactotron.setAsyncStorageHandler(AsyncStorage)
+	.configure({
+		name: `myproject_${Platform.OS}`,
+	})
+	.useReactNative({
+		asyncStorage: true,
+	})
+	.use(
+		reactotronZustand({
+			// 이 곳에 모니터링 하고 싶은 나의 상태관리 값을 추가해 줍니다.
+			stores: [{ name: 'userStore', store: useUserStore }],
+			omitFunctionKeys: true,
+		}),
+		/* reactotronZustand({
+      // 패키지 github:aylonmuramatsu/reactotron-zustand-plugin 사용할 떄는 아래처럼 작성하면 됩니다.
+      stores: [
+        // { name: 'app', zustand: useApp },
+        { name: 'userStore', zustand: useUserStore }
+      ]
+    }) */
+	)
+	.connect();
+```
+
+Reactotron 설정 파일을 위와 같이 생성해 줍니다. (저는 root 위치에 추가 해주었어요.)
+
+reactotronZustand 내에 내 (프로젝트에 생성한) 상태관리 스토어를 추가해 줍니다.
+
+## App.tsx 내 추가
+
+```tsx
+// App.tsx
+
+if (__DEV__) {
+	// @ts-ignore
+	import('./ReactotronConfig').then(() => console.log('Reactotron Configured'));
+}
+```
+
+가장 최상위에 Reactotron 설정 파일 import를 해주고, 완료 시 콘솔을 보여주는 로직을 추가합니다.
+
+이렇게 하면 일단 프로젝트에 설정은 완료 !
+
+## macOs Reactotron 설치
+
+이제 내 맥에 reactotron 프로그램을 설치해줍니다.
+
+`brew install --cask reactotron` 이 명령어를 입력하면 설치가 되어요~
+
+![](https://velog.velcdn.com/images/bbahna/post/a3d4bd50-d2fe-47bc-a079-d66aa1001a56/image.png)
+
+설치 완료 후 첫 모습.
+
+### android
+
+먼저 안드로이드 설정을 위해 아래 명령어를 입력하여 포트를 맞춰줍니다.
+
+→ 터미널에 `adb reverse tcp:9090 tcp:9090` 명령어 입력
+
+cc. https://docs.infinite.red/reactotron/quick-start/react-native/#troubleshooting
+
+![](https://velog.velcdn.com/images/bbahna/post/635bedb3-f075-4ce0-a81b-34287978aff5/image.png)
+
+안드로이드 기기의 포트 번호를 9090으로 설정해주면 위와 같이 안드로이드 기기가 연결된 모습을 볼 수 있어요.
+
+해당 기기의 안드로이드 버전 또한 알 수 있습니다.
+사진 아래 부분에 Advanced Reverse Tunneling Settings 부분에 reactotron 포트 번호에 대한 설명이 나와있죠?
+
+### ios
+
+![](https://velog.velcdn.com/images/bbahna/post/b90133fc-c268-46d4-b0ac-0547be14fbd9/image.png)
+
+동일하게 아이폰도 설정해주면 ios 버전에 대해 알 수 있어요.
+
+_(tmi. ios은 최최신버전인데 android는 극극예전 버전 ㅋㅋ)_
+
+### Timeline
+
+![](https://velog.velcdn.com/images/bbahna/post/9561501c-57bd-4ff8-9965-02e7fee65a5d/image.png)
+
+위와 같이 기기 연결이 완료되면 왼쪽 Timeline 탭에서 `API RESPONSE`와 `DEBUG`(console)와 `ASYNC STORAGE`에 대한 정보를 쉽게 확인할 수 있어요.
+
+![](https://velog.velcdn.com/images/bbahna/post/4014479c-e602-47da-9dbc-ad3b0e046df2/image.png)
+
+특히 `API RESPONSE`에 대한 기능이 정말 유용한데, 이 부분 자세히 알아볼게요!
+
+- Copy JSON response to clipboard (클립보드에 JSON 응답 복사)
+  ![](https://velog.velcdn.com/images/bbahna/post/0ed6227e-6c6e-42ab-9f3e-286268035226/image.png)
+
+  먼저 첫번째 버튼은, response 결과를 복사해서 확인할 수 있어요.
+  응답 구조를 복사해서 활용할 때 유용합니다.
+
+  ```json
+  {
+  	"status": "SUCCESS",
+  	"message": "정상처리",
+  	"errorMessage": null,
+  	"errorCode": null,
+  	"result": {
+  		"accessToken": ""
+  	}
+  }
+  ```
+
+- Copy JSON request to clipboard (JSON 요청을 클립보드에 복사)
+  ![](https://velog.velcdn.com/images/bbahna/post/28421247-4410-472d-ab85-d6e823260428/image.png)
+
+  다음으로 두번째 버튼은, 나의 api 요청의 파라미터 값을 클립보드에 저장해줍니다.
+  어떻게 api 요청했는지 확인할 때 좋더라구요. 물론 복사하지 않고 reactotron에서도 바로 확인 가능합니다.
+
+  ```json
+  {
+  	"username": "",
+  	"password": ""
+  }
+  ```
+
+- Copy as markdown to clipboard (클립보드에 마크다운으로 복사)
+  ![](https://velog.velcdn.com/images/bbahna/post/9ca18ce2-02a6-49dc-be19-f31168b77347/image.png)
+
+  다음으로 세번째 버튼은, api 요청을 마크다운으로 작성 해줍니다.
+  아래처럼 확인할 수 있는데, 백엔드 개발자에게 해당 마크다운을 보내주면 의사소통할 때 편하더라구요.
+
+  ````markdown
+  # Request
+
+  ### Endpoint
+
+  `POST` https://account-api.example.co.kr/auth
+
+  ### Duration
+
+  `415` ms
+
+  ### Data Sent
+
+  {
+  "username": "",
+  "password": ""
+  }
+
+  ### Headers
+
+  | key          | value                             |
+  | ------------ | --------------------------------- |
+  | accept       | application/json, text/plain, _/_ |
+  | content-type | application/json                  |
+
+  # Response
+
+  ### Status Code
+
+  `200`
+
+  ### Data Received
+
+  ```json
+  {
+  	"status": "SUCCESS",
+  	"message": "정상처리",
+  	"errorMessage": null,
+  	"errorCode": null,
+  	"result": {
+  		"accessToken": ""
+  	}
+  }
+  ```
+
+  ### Headers
+
+  | key               | value                                                                 |
+  | ----------------- | --------------------------------------------------------------------- |
+  | Set-Cookie        | example                                                               |
+  | Content-Type      | application/json                                                      |
+  | Cache-Control     | no-cache, no-store, max-age=0, must-revalidate                        |
+  | Pragma            | no-cache                                                              |
+  | Transfer-Encoding | Identity                                                              |
+  | Date              | Tue, 22 Jul 2025 04:04:21 GMT                                         |
+  | Vary              | Origin, Access-Control-Request-Method, Access-Control-Request-Headers |
+  | X-XSS-Protection  | 1; mode=block                                                         |
+  | Expires           | 0                                                                     |
+  ````
+
+- Copy JSON request as cURL (JSON 요청을 cURL로 복사)
+  ![](https://velog.velcdn.com/images/bbahna/post/55f01c69-b3f9-4917-a72d-d8d0480ec9ce/image.png)
+
+  마지막으로 Copy JSON request as cURL 버튼은, curl 명령어로 api 요청을 복사할 수 있어요.
+  직접 api 요청을 원하는 환경에서 실행하고 테스트 할 때 유용합니다.
+
+  ```json
+  curl -X POST  -H "accept:application/json, text/plain, */*" -H "content-type:application/json" https://account-api.example.co.kr/auth -d '{"username":"","password":"",}'
+  ```
+
+### State
+
+![](https://velog.velcdn.com/images/bbahna/post/84299f63-08ed-4590-9a60-31698efe7917/image.png)
+
+상태 관리는 왼쪽 Timeline 탭에서 ReactotronConfig.js 내 reactotronZustand에서 설정한 값을 볼 수 있어요.
+
+현재 어떤 스토어에서 어떤 값이 설정되어 있는지 볼 때 편하더라구요. redux-toolkit 또한 r[eactotron-redux](https://www.npmjs.com/package/reactotron-redux) 해당 패키지로 쉽게 설정 가능한 것 같으니 참고해 보세요 ~
+
+## 비교군
+
+처음 디버그툴을 고민할 때, reactotron 외에 다른 툴들을 고민했었는데요. 여러 시행착오가 있었습니다.
+
+### React Native DevTools
+
+```jsx
+npm run start -- --reset-cache
+
+> mtnwplusApp@0.0.1 start
+> react-native start --reset-cache
+
+Welcome to React Native v0.77
+Starting dev server on http://localhost:8081
+
+                        ▒▒▓▓▓▓▒▒
+                     ▒▓▓▓▒▒░░▒▒▓▓▓▒
+                  ▒▓▓▓▓░░░▒▒▒▒░░░▓▓▓▓▒
+                 ▓▓▒▒▒▓▓▓▓▓▓▓▓▓▓▓▓▒▒▒▓▓
+                 ▓▓░░░░░▒▓▓▓▓▓▓▒░░░░░▓▓
+                 ▓▓░░▓▓▒░░░▒▒░░░▒▓▒░░▓▓
+                 ▓▓░░▓▓▓▓▓▒▒▒▒▓▓▓▓▒░░▓▓
+                 ▓▓░░▓▓▓▓▓▓▓▓▓▓▓▓▓▒░░▓▓
+                 ▓▓▒░░▒▒▓▓▓▓▓▓▓▓▒░░░▒▓▓
+                  ▒▓▓▓▒░░░▒▓▓▒░░░▒▓▓▓▒
+                     ▒▓▓▓▒░░░░▒▓▓▓▒
+                        ▒▒▓▓▓▓▒▒
+
+ WARN  the transform cache was reset.
+                Welcome to Metro v0.81.1
+              Fast - Scalable - Integrated
+
+ INFO  Dev server ready. Press Ctrl+C to exit.
+ INFO  Key commands available:
+
+   r  - reload app(s)
+   d  - open Dev Menu
+   j  - open DevTools
+
+ BUNDLE  ./index.js
+
+ INFO
+ 💡 JavaScript logs have moved! They can now be viewed in React Native DevTools. Tip: Type j in the terminal to open (requires Google Chrome or Microsoft Edge).
+```
+
+![](https://velog.velcdn.com/images/bbahna/post/edfdf36b-74d6-4162-9e8e-36b5798ce6d4/image.png)
+
+처음에 metro를 실행하면 이렇게 뜨는데요. 최신 버전의 react-native를 사용할 경우 React Native DevTools 디버그툴이 지원되어,
+
+위 터미널에서 영문 r을 누를 경우 앱이 새로고침 되고, d를 누를 경우 dev menu가 아래처럼 뜹니다. j를 누를경우 devTiool이 바로 실행됩니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/b1c15a09-a91b-415a-a1b0-2cfb18da3396/image.png)
+
+d를 누를 경우, 연결된 디바이스에서 dev menu가 뜹니다. 이 때 Open DevTools를 누를 경우, 아래와 같이 콘솔에서 확인할 수 있어요.
+
+![](https://velog.velcdn.com/images/bbahna/post/fa3c8bf9-c466-4b64-8d86-0b40347e3b53/image.png)
+
+다만 api 호출이나 stroge에 관한 정보는 확인 할 수 없기에, 저는 간단한 로그를 확인하고 싶을 때에 활용합니다.
+
+### Flipper
+
+다음으로 많은 개발자들이 사용하는 것 같아 flipper도 초기에 설정해보았어요.
+
+![](https://velog.velcdn.com/images/bbahna/post/dfc618a4-424b-4669-89e2-4dd7fc793677/image.png)
+
+flipper는 초기에 이렇게 관련 설정들이 필요했어요. 저 설명대로 mac에 설치를 하고, 확인해 보았는데 자꾸 설치가 안됐다고 뜨는 이슈..
+
+![](https://velog.velcdn.com/images/bbahna/post/28c58edb-1965-4612-8c1f-87147a908191/image.png)
+
+분명 설치를 했지만 자꾸 `IDB installed`와 `Simulators are available` 이슈가 계속 떠서, 그냥 설정을 포기하고 reactotron으로 갈아 탔습니다.
+
+## 마무리..
+
+그 외에 ProxyMan 같은 것들도 있다는 것을 뒤늦게 알았는데요. 확인 후 적용해 보시고, 본인의 요구사항에 맞는 디버그 툴을 사용하시면 될 것 같습니다.
+
+하지만 reactotron 만으로 원하는 기능을 충분히 사용할 수 있기에, 사용해 보시는것도 추천 드립니다. !
