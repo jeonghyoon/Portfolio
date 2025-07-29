@@ -24,6 +24,16 @@ const Posts = ({ posts }: InferGetStaticPropsType<typeof getStaticProps>) => {
 		click ? setSellect('all') : setSellect('');
 	};
 
+	const getFilteredPosts = () => {
+		if (click) {
+			return posts.filter((post) => post.title.toLowerCase().includes(search));
+		}
+		if (sellect === 'all') {
+			return posts;
+		}
+		return posts.filter((post: any) => post.category === sellect);
+	};
+
 	return (
 		<Container>
 			<NextSeo title="Hyoon - Posts" description="배우고 알게된 것들을 기록합니다." />
@@ -33,23 +43,9 @@ const Posts = ({ posts }: InferGetStaticPropsType<typeof getStaticProps>) => {
 				<Search click={click} onChange={handleSearch} onClick={clickSearch} />
 			</div>
 			<div className="mb-5 flex flex-wrap max-md:max-w-[664px] max-md:content-center mx-auto my-0 max-md:flex-col">
-				{click ? (
-					<>
-						{posts
-							.filter((post) => post.title.toLowerCase().includes(search))
-							.map((post: any) => (
-								<PostList post={post} slug={post._raw.flattenedPath} key={post._id} />
-							))}
-					</>
-				) : (
-					<>
-						{sellect === 'all'
-							? posts.map((post: any) => <PostList post={post} slug={post._raw.flattenedPath} key={post._id} />)
-							: posts
-									.filter((post: any) => post.category === sellect)
-									.map((post: any) => <PostList post={post} slug={post._raw.flattenedPath} key={post._id} />)}
-					</>
-				)}
+				{getFilteredPosts().map((post: any) => (
+					<PostList post={post} slug={post._raw.flattenedPath} key={post._id} isWide />
+				))}
 			</div>
 		</Container>
 	);
