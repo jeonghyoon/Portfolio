@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import MobileMenu from './MobileMenu';
+import { firebaseLogging } from '@/firebase/logEvent';
 
 const Navigation = () => {
 	const headerRef = useRef<HTMLElement>(null);
@@ -19,8 +20,10 @@ const Navigation = () => {
 	const handleTheme = useCallback((theme?: boolean) => {
 		setIsDark((prev) => {
 			const changeTheme = theme ?? !prev;
+			const themeColor = changeTheme ? 'dark' : 'light';
+			document.body.className = themeColor;
 			window.localStorage.setItem('dark', String(changeTheme));
-			document.body.className = changeTheme ? 'dark' : 'light';
+			firebaseLogging(`theme_${themeColor}_click`);
 			return changeTheme;
 		});
 	}, []);
@@ -38,7 +41,7 @@ const Navigation = () => {
 		<header ref={headerRef} className="fixed top-0 left-0 z-20 w-full p-2 theme-bg-0 flex-0">
 			<div className="flex flex-row items-center justify-between max-w-screen-lg m-auto">
 				<div className="flex flex-row items-center duration-200 rounded-lg theme-bg-hover-2">
-					<Link href="/home">
+					<Link href="/home" onClick={() => firebaseLogging(`nav_Home_click`)}>
 						<Image src={`/logo.png`} alt="로고" width={45} height={45} />
 					</Link>
 				</div>
@@ -48,7 +51,7 @@ const Navigation = () => {
 					</button>
 					<div className="flex flex-wrap content-center max-lg:hidden">
 						{navlinks.map((nav) => (
-							<Link href={nav.link} key={nav.title}>
+							<Link href={nav.link} key={nav.title} onClick={() => firebaseLogging(`nav_${nav.title}_click`)}>
 								<div
 									className={`${
 										router.pathname.startsWith(`${nav.link}`)

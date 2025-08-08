@@ -1,3 +1,4 @@
+import { firebaseLogging } from '@/firebase/logEvent';
 import { useState, useEffect } from 'react';
 
 interface CopyLinkBtnProps {
@@ -32,6 +33,10 @@ const CopyLinkBtn = ({
 		try {
 			await navigator.clipboard.writeText(url);
 			setCopied(true);
+			firebaseLogging('link_copy', {
+				purpose: 'share_content',
+				category: 'user_interaction',
+			});
 			window.alert('링크를 복사했습니다.');
 		} catch (e) {
 			console.error(e);

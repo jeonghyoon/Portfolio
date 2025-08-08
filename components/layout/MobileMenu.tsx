@@ -3,11 +3,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import navlinks from '@/data/navlinks';
+import { firebaseLogging } from '@/firebase/logEvent';
 
 const MobileMenu = () => {
 	const router = useRouter();
 	const [onClick, setOnClick] = useState(false);
-	const toggleOnClick = () => setOnClick(!onClick);
+	const toggleOnClick = () => {
+		setOnClick(!onClick);
+		firebaseLogging(`nav_mobile_click`);
+	};
 
 	return (
 		<div className="flex content-center justify-center mr-3 lg:hidden">
@@ -27,13 +31,13 @@ const MobileMenu = () => {
 				} translate-x-full translate-y-0 z-10 fixed top-0 bottom-0 right-0 w-full ease duration-300 rotate-0 theme-bg-0`}
 			>
 				<div className="p-2">
-					<Link href="/home">
+					<Link href="/home" onClick={() => firebaseLogging(`nav_Home_click`)}>
 						<Image src={`/logo.png`} alt="로고" width={45} height={45} />
 					</Link>
 				</div>
 				<div className="flex flex-col flex-wrap content-center px-3 py-12">
 					{navlinks.map((nav) => (
-						<Link href={nav.link} key={nav.title}>
+						<Link href={nav.link} key={nav.title} onClick={() => firebaseLogging(`nav_${nav.title}_click`)}>
 							<h2
 								className={`${
 									router.pathname.startsWith(`${nav.link}`) && 'theme-text-main'

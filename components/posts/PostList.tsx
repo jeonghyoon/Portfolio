@@ -1,3 +1,4 @@
+import { firebaseLogging } from '@/firebase/logEvent';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,7 +16,7 @@ export interface postProps {
 
 const PostList = ({ post, slug, isWide }: postProps) => {
 	return (
-		<Link href={`/posts/${slug}`} passHref className="w-full">
+		<Link href={`/posts/${slug}`} passHref className="w-full" onClick={() => firebaseLogging(`posts_${slug}_click`)}>
 			<div className="relative p-2 my-2 duration-150 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-800">
 				{post.thumbnail && (
 					<div

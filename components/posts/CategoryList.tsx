@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { Post } from 'contentlayer/generated';
 
 import { categorys } from '@/data/categorys';
+import { firebaseLogging } from '@/firebase/logEvent';
 
 interface CategoryListProps {
 	sellect: string;
@@ -21,6 +22,7 @@ export default function CategoryList({ sellect, setSellect, setClick, posts }: C
 						onClick={() => {
 							setSellect(category.keyword);
 							setClick(false);
+							firebaseLogging(`posts_${category.keyword}_click`);
 						}}
 						key={category.keyword}
 						className={`px-3 py-1 theme-bg-3 text-[15px] rounded-2xl leading-[23px] ${

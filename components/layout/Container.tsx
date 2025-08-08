@@ -4,6 +4,7 @@ import { NextSeo } from 'next-seo';
 import metadata from '@/data/metadata';
 import Navigation from './Navigation';
 import Footer from './Footer';
+import { firebaseLogging } from '@/firebase/logEvent';
 
 const Container = (props: any) => {
 	const [show, setShow] = useState(false);
@@ -20,6 +21,7 @@ const Container = (props: any) => {
 
 	const handleScrollTop = () => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
+		firebaseLogging(`footer_scrollTop_click`);
 	};
 
 	return (

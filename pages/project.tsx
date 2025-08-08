@@ -1,11 +1,17 @@
+import { useEffect } from 'react';
 import { NextSeo } from 'next-seo';
 
 import Container from '@/components/layout/Container';
 import Title from '@/components/common/Title';
 import project from '@/data/project';
 import BoxList from '@/components/project/BoxList';
+import { firebaseLogging } from '@/firebase/logEvent';
 
 const Project = () => {
+	useEffect(() => {
+		firebaseLogging('project_load');
+	}, []);
+
 	return (
 		<Container>
 			<NextSeo title="Hyoon - Project" description="뚝딱뚝딱 프로젝트 공장입니다." />

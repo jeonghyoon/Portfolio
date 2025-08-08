@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { InferGetStaticPropsType } from 'next';
 import { NextSeo } from 'next-seo';
 import { allPosts } from 'contentlayer/generated';
@@ -8,6 +8,7 @@ import Title from '@/components/common/Title';
 import Search from '@/components/posts/Search';
 import CategoryList from '@/components/posts/CategoryList';
 import PostList from '@/components/posts/PostList';
+import { firebaseLogging } from '@/firebase/logEvent';
 
 const Posts = ({ posts }: InferGetStaticPropsType<typeof getStaticProps>) => {
 	const [search, setSearch] = useState<string>('');
@@ -22,6 +23,7 @@ const Posts = ({ posts }: InferGetStaticPropsType<typeof getStaticProps>) => {
 	const clickSearch = () => {
 		setClick(!click);
 		click ? setSellect('all') : setSellect('');
+		firebaseLogging('posts_search_click');
 	};
 
 	const getFilteredPosts = () => {
@@ -33,6 +35,10 @@ const Posts = ({ posts }: InferGetStaticPropsType<typeof getStaticProps>) => {
 		}
 		return posts.filter((post: any) => post.category === sellect);
 	};
+
+	useEffect(() => {
+		firebaseLogging('posts_load');
+	}, []);
 
 	return (
 		<Container>

@@ -1,10 +1,16 @@
+import { useEffect } from 'react';
 import { NextSeo } from 'next-seo';
 import Image from 'next/image';
 
 import Container from '@/components/layout/Container';
 import Title from '@/components/common/Title';
+import { firebaseLogging } from '@/firebase/logEvent';
 
 const About = () => {
+	useEffect(() => {
+		firebaseLogging('about_load');
+	}, []);
+
 	return (
 		<Container>
 			<NextSeo title="Hyoon - About" description="매력적인 사용자 경험을 추구합니다." />

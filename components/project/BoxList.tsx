@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { projectProps } from '@/data/project';
 import NewMaker from '../common/NewMaker';
+import { firebaseLogging } from '@/firebase/logEvent';
 
 interface BoxListProps {
 	post: projectProps;
@@ -9,7 +10,11 @@ interface BoxListProps {
 
 const BoxList = ({ post }: BoxListProps) => {
 	return (
-		<Link href={post.link ? post.link : `/posts/${post._raw?.flattenedPath}`} target={post.link && '_blank'}>
+		<Link
+			href={post.link ? post.link : `/posts/${post._raw?.flattenedPath}`}
+			target={post.link && '_blank'}
+			onClick={() => firebaseLogging(`project_item${post.id}_click`)}
+		>
 			<div
 				className={`flex flex-col justify-between m-4 overflow-hidden duration-200 rounded-md max-w-[300px] min-w-[300px] max-md:mx-0 max-md:mb-2 ${
 					post.thumbnail ? 'h-[380px]' : 'h-[200px]'
