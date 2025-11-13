@@ -1,0 +1,293 @@
+---
+title: 'ios 앱 이관 방법 및 주의 사항 - apple 로그인, firebase 토큰은 절대 지켜!'
+description: '실 사용자가 30만이 넘는 앱을 운영하고 있었는데, 앱 이관이 잘못되면 서비스 이용에 큰 문제가 생길 수 있다.'
+date: '2025-11-13'
+tags:
+  [
+    'App Store',
+    'Apple 로그인',
+    'FCM Token',
+    'apns',
+    'firebase 토큰',
+    'iOS',
+    'react native',
+    'transfer',
+    '애플로그인',
+    '앱 이관',
+    '앱 이전',
+  ]
+category: 'React Native'
+thumbnail: /posts/ios-transfer-apple-firebase.png
+---
+
+실제 운영 중인 ios 앱을 이관하기 위해 여러 자료를 찾아봤지만, 정확한 정보가 없어 이 글을 작성하게 되었다.
+
+회사에서 실 사용자가 30만이 넘는 앱을 운영하고 있었는데, 앱 이관이 잘못되면, 1) apple 로그인 사용자는 로그인 자체가 불가능하고, 2) ios 사용자 모두 앱 알림을 받지 못하게 되는 큰 문제가 생길 수 있었기에, 테스트 앱까지 제작하며 ios 앱 이관을 진행하게 되었다. (현재 첨부된 사진들은 테스트 앱으로 진행된 사진이에요)
+
+A계정에서 B계정으로 ios 앱 이관 시,가장 중요한 부분은 1) Apple 로그인, 2) Firebase 토큰과 관련된 부분이였다.
+
+1. apple 로그인은 로그인 성공 후 apple에서 제공해주는 고유 식별 값(sub)이 변경되어 기존 로그인 정보를 잃어버리게 된다. 따라서 이관 전 변경될 값을 조회할 수 있는 trasnfer_sub를 미리 조회해서 저장해두어야 하고, 이관 후 trasnfer_sub로 new_sub를 조회하여 기존 sub 값을 변경해야 한다.
+2. firebase 토큰은 이관 전 B계정에 새로운 APNs 키 생성을 해둔 후, 이관이 된 즉시 firebase 내 apple 앱 인증키를 새로 생성한 APNs 키로 변경하면 기존 토큰으로도 수신이 가능하다.
+
+알고나면 정말 간단한 부분인데, 이에 대한 자세하게 설명된 글이 없어서 괜한 시간을 낭비했던 것 같다.
+
+아래는 자세한 설명을 적어두었으니 부족한 점있으면 피드백과 질문 댓글로 남겨주세요. 이 헤매는 과정 중에 이관만 3번 이상 했으니 이 정도면 ios 앱 이관 마스터 한듯 ?! (참고로 조건에 맞게 이관은 신청되면 5분 내로 자동으로 앱이 B계정으로 옮겨지니 오래 기다릴 필요는 없어요)
+
+# Apple 로그인
+
+## **원인**
+
+- 이관 후 고유 식별 값(sub)이 변경되어, 기존 사용자들이 신규 회원으로 처리됨 → 기존 사용자들의 식별 값을 신규 값으로 변경하는 작업 필요
+
+## 계획
+
+```markdown
+# 이관 전
+
+1. trasnfer_sub 조회
+2. 신규 column에 trasnfer_sub를 Create 처리
+
+# 이관 중
+
+1. transfer_sub를 통해 new_sub 조회
+2. 신규 column에 new_sub를 Create 처리
+   → 이관 중 기존 사용자들이 아닌 신규 사용자의 경우 transfer_sub, new_sub에 대한 동작이 불확실해, Apple 로그인/회원가입을 화면에서 차단하고 진행? (협의 필요)
+
+# 이관 후
+
+1. 식별 값 new_sub으로 로그인 정상 처리 확인
+```
+
+→ 위 조회하는 코드는 [여기 링크](https://github.com/jeonghyoon/apple-token)에 node로 작성한 코드가 있으니 참고하시면 됩니다.
+
+### 이관 전
+
+- 테이블 구성
+  ```jsx
+  - id : 회원 식별값
+  - sub : 이관 전 애플 로그인 고유값
+  - transfer_sub : 전송 식별자
+  - new_sub : 이관 후 애플 로그인 고유값
+  ```
+- client_secret 조회
+
+  1. 설치
+
+     `npm install jsonwebtoken`
+
+  2. client_secret.js
+
+     ```jsx
+     const fs = require('fs');
+     const jwt = require('jsonwebtoken');
+
+     const keyFile = 'AuthKey_XXXX.p8'; // .p8 파일 경로
+     const teamId = 'YOUR_TEAM_ID';
+     const clientId = 'YOUR_CLIENT_ID'; // 서비스 ID or 번들 ID
+     const keyId = 'YOUR_KEY_ID';
+
+     const privateKey = fs.readFileSync(keyFile, 'utf8');
+
+     const token = jwt.sign(
+     	{
+     		iss: teamId,
+     		iat: Math.floor(Date.now() / 1000),
+     		exp: Math.floor(Date.now() / 1000) + 86400 * 180, // 180일 유효
+     		aud: 'https://appleid.apple.com',
+     		sub: clientId,
+     	},
+     	privateKey,
+     	{
+     		algorithm: 'ES256',
+     		keyid: keyId,
+     	},
+     );
+
+     console.log(token);
+     ```
+
+  3. 실행
+
+     `node client_secret.js`
+
+- access_token 조회
+
+  ```markdown
+  # Request
+
+  - POST https://appleid.apple.com/auth/token
+  - Content-Type: application/x-www-form-urlencoded
+  - grant_type=client_credentials&
+    scope=user.migration&
+    client_id={client_id}&
+    client_secret={client_secret}
+
+  # Response
+
+  {
+  "access_token": "adg6105ed7a4def32adec143038877c2b.0.nx.20LreF67Or9",
+  "token_type": "Bearer",
+  "expires_in": 3600
+  }
+  ```
+
+- transfer_sub 조회
+
+  ```markdown
+  # Request
+
+  - POST https://appleid.apple.com/auth/usermigrationinfo
+  - Content-Type: application/x-www-form-urlencoded
+  - Authorization: Bearer {access_token}
+  - sub={sub}&
+    target={recipient_team_id}&
+    client_id={client_id}&
+    client_secret={client_secret}
+
+  # Response
+
+  { "transfer_sub": "760417.ebbf12acbc78e1be1668ba852d492d8a.1827" }
+  ```
+
+  → 해당 transfer_sub 값 db에 저장
+
+위 작업까지 미리 진행해 두어야, 이관 후 변경될 new_sub를 조회할 수 있습니다.
+
+### 이관 진행
+
+→ 이관 방법에 대한 글은 여기에서 확인할 수 있습니다 :)
+
+### 이관 후
+
+- apple login 설정 추가
+  ![](https://velog.velcdn.com/images/bbahna/post/450bd3e1-ac3f-4545-9280-0eb171947040/image.png)
+
+  앱 이관이 완료되면, keys에 접속해서 apple 로그인 설정을 진행하면 됩니다.
+  ![](https://velog.velcdn.com/images/bbahna/post/c8c604b7-81b4-4b2a-968a-bc0875bfdd50/image.png)
+
+  Sign in with Apple을 체크해주고, key 설정을 아래와 같이 추가해주었습니다.
+
+  ![](https://velog.velcdn.com/images/bbahna/post/d1101627-d5bb-4616-890f-ce614b0156cf/image.png)
+
+  ![](https://velog.velcdn.com/images/bbahna/post/2f844386-e954-4581-9d21-5bf66010ec40/image.png)
+
+  Sign in with Apple 설정을 완료한 모습.
+
+- new_sub 조회
+
+  ```markdown
+  # Request
+
+  - POST https://appleid.apple.com/auth/usermigrationinfo
+  - Content-Type: application/x-www-form-urlencoded
+  - Authorization: Bearer {access_token}
+  - sub={sub}&
+    target={recipient_team_id}
+    client_id={client_id}&
+    client_secret={client_secret}
+
+  # Response
+
+  {
+  "sub": "820417.faa325acbc78e1be1668ba852d492d8a.0219",
+  "email": "xxxxxxxxx@privaterelay.appleid.com",
+  "is_private_email": true
+  }
+  ```
+
+  → 해당 new_sub 값 db에 저장
+
+- 애플 로그인 응답 값의 결과에 식별값이 new_sub로 오는지 확인!
+
+이렇게 저희는 모든 apple 계정을 이관 후에 new_sub를 조회한 후 기존 계정도 정상적으로 서비스를 이용할 수 있도록 진행하였습니다.
+
+이관이 완료된 후에 new_sub를 조회할 수 있었기에, 최근 로그인 사용자 기준으로 먼저 데이터 조회를 진행하였으며, 새벽에 조회를 진행하여 서비스 이용에 문제가 생기지 않도록 작업을 하였습니다.
+또한 조회 시간에 각 유저별로 apple api로 정보를 받아야 했기에 시간이 소요되어 사용자가 적은 시간에 작업을 진행했습니다.
+
+# Firebase 토큰
+
+## 원인
+
+- Firebase 프로젝트 자체는 이전되지 않으며 FCM을 위한 APNs 인증서 및 키가 이전되지 않음 → 기존 푸시 토큰(FCM Token)이 무효화될 가능성이 있으며 앱이 새로운 개발자 계정에 등록되므로 APNs 설정을 다시 해야 함
+
+## 계획
+
+```markdown
+# 이관 전
+
+1. 새로운 APNs 키 생성
+
+# 이관 후
+
+1. Firebase에 새로운 APNs 키 등록
+```
+
+### 이전 전 : 새로운 Apple 개발자 계정에서 새로운 APNs 키 생성
+
+![](https://velog.velcdn.com/images/bbahna/post/aa572e48-1699-4a90-8b07-4d432597f40e/image.png)
+
+이관하려는 계정으로 로그인 후 [애플 개발자 센터 keys](https://developer.apple.com/account/resources/authkeys/list)에 접속해 줍니다.
+
+Create a key 키 생성하기 버튼을 클릭 해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/5b26905e-4508-4cbf-b147-68f6bcf4201c/image.png)
+
+![](https://velog.velcdn.com/images/bbahna/post/4eb89d1e-a5e2-40ec-bf44-5b6c588e1921/image.png)
+
+key name을 적어주고, APNs 체크박스를 클릭해주고 Configure를 클릭해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/96fdc60b-2bad-4984-aaa5-0488d0479e03/image.png)
+
+환경은 Sandbox & Production으로 선택해 줍니다.
+
+개발계를 만든다고 해도 Sandbox만 선택하지 않고 Sandbox & Production으로 해야 푸시 알림이 정상적으로 오더라구요. 이것 때문에 푸시 알림 헤맨 1인..
+
+![](https://velog.velcdn.com/images/bbahna/post/aadcdcf8-b3db-4b2f-a97d-58d1c42cf463/image.png)
+
+이렇게 이관 전에 APNs 설정을 미리 해두고 Apple로 로그인 부분은 이관이 완료된 후에 설정해주세요.
+
+![](https://velog.velcdn.com/images/bbahna/post/a5c1bedf-3956-42ba-854a-523537e0f246/image.png)
+
+![](https://velog.velcdn.com/images/bbahna/post/5b26905e-4508-4cbf-b147-68f6bcf4201c/image.png)
+
+키를 만들고 키를 다운로드 해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/cefc1a54-93da-4f70-8ec7-46b6daf25c06/image.png)
+
+한 번밖에 다운로드 되지 않으니 주의해주세요.
+
+![](https://velog.velcdn.com/images/bbahna/post/3a5c4d50-98ed-4591-8891-bd2069c86ac1/image.png)
+
+키가 하나 만들어졌습니다.
+
+### 이전 후 : Firebase에 새로운 APNs 키 등록, Team ID 수정
+
+이관이 완료되었으면 빠르게 firebase에 설정을 바꾸어줍니다.
+
+따라서 이관 작업은 푸시 알림이 없는 새벽에 진행하는 것이 좋습니다. 실제로 저희 회사에서도 언제든지 롤백할 수 있게 야간 작업으로 진행하였습니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/996b021e-5dbc-4fe1-95f9-b93224fe3c96/image.png)
+
+[firebase console](https://console.firebase.google.com/) > 내 프로젝트 > 프로젝트 설정에 접근합니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/35d14ecb-5501-4099-a515-77062fcfeebe/image.png)
+
+위와 같이 나의 apple 앱에 설정된 firebase 설정을 확인할 수 있는데요.
+
+변경된 팀 ID로 바꾸어줍니다. 팀 ID는 [이곳](https://developer.apple.com/account)에서 확인할 수 있어요.
+
+![](https://velog.velcdn.com/images/bbahna/post/faa02a15-d44b-44f9-aad7-065332ca2f52/image.png)
+
+이 후 클라우드 메시징 탭으로 들어가서, 기존 팀 ID의 키는 삭제하고 새로 만든 key를 이곳에 업로드 해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/04fc6938-ce98-4361-b83b-26c218ddcf53/image.png)
+
+변경된 키 ID와 팀 ID를 확인하시면 됩니다. 이후 기존 토큰으로 수신 테스트를 진행합니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/9b2fa2a3-d737-4c8b-94c8-8124a6da6279/image.png)
+
+![](https://velog.velcdn.com/images/bbahna/post/c7af54c8-4ee3-44ac-bd69-a212aa7b408d/image.png)
+
+이렇게 설정 후 기존 토큰으로 2개 이상의 기기에서 정상적으로 수신되는 모습을 확인할 수 있습니다.
+
+→ firebase 토큰 테스트 방법에 대해서는 [이 글](https://velog.io/@bbahna/rn-firebase-messaging#fcm-token-push-test)에 자세하게 작성되어 있습니다.
