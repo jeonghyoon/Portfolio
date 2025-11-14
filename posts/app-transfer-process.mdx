@@ -1,0 +1,126 @@
+---
+title: 'ios 앱 이관 신청 및 프로세스 - 앱 이관만 4번 넘게한 사람만 믿고 따라 오시쥬'
+description: '테스트 앱까지 제작하며 앱 승인 후, 이관을 진행 해본 사람이면 믿을만 하겠죠?'
+date: '2025-11-13'
+tags: ['App Store', 'iOS', 'react native', 'transfer', '비즈니스', '앱 이관', '앱 이전', '테스트 앱', '프로세스']
+category: 'React Native'
+thumbnail: /posts/app-transfer-process.png
+---
+
+## 이관 진행
+
+ios 앱 이관을 위해서는 이전하는 측에서 여러 조건이 필요합니다.
+
+그 중 시간이 들었던 부분은 1) 테스터 제거, 2) 빌드 무효화, 3) 관리자 권한 제거 등이 있습니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/5e7c3b1d-98d0-4684-bafa-02847d6fbd96/image.png)
+
+먼저 앱 이전은 배포> 일반 정보 > 앱 정보 하단에 [앱 이전]이라는 버튼을 클릭해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/53655a68-125a-4150-9304-5f3bbe20857b/image.png)
+
+뭐 보통 저 베타 테스트 부분에서 많이 막힐겁니다.
+
+베타 테스트 부분은 빌드 무효화, 테스트 제거, 관리자 권한 제거 정도 진행하면 기준에 충족할 수 있어요.
+
+### 테스터 제거
+
+![](https://velog.velcdn.com/images/bbahna/post/e3f884dc-be97-4655-83e0-894b7d5c183d/image.png)
+
+테스터 제거를 위해 TestFlight > 테스터 > 전체에 들어가 추가된 테스터를 삭제해 줍니다.
+
+### 빌드 무효화
+
+![](https://velog.velcdn.com/images/bbahna/post/5f2a4cc0-3f3d-4529-9d7f-835c7ee730cb/image.png)
+
+TestFlight > 빌드 > iOS에 들어가서 ‘제출 준비 완료’와 같은 상태를 모두 무효화 시켜줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/c8a7e878-1956-4e30-b261-019650cf3a21/image.png)
+
+이렇게 빌드 버전을 하나하나 들어가서 무효화 시켜줘야하는데, 사실 이런것쯤은 애플 너네가 일괄로 해주면 안되겠니? 이관하기 참 까다롭다 애플 😩
+
+![](https://velog.velcdn.com/images/bbahna/post/d1276d68-48af-418b-973d-112343d1b9e9/image.png)
+
+만료됨 상태 하나하나 버전 들어가서 무효화 해주면 이런 모습. 어려운 건 아닌데 그냥 노가다 수동 시스템 번거롭다.
+
+### 관리자 권한 제거
+
+![](https://velog.velcdn.com/images/bbahna/post/a57e70e9-536e-4dd4-9682-9b092f668b3f/image.png)
+
+이후 [개발자 센터 사용자 및 엑세스](https://appstoreconnect.apple.com/access/users)에 접근해주고, ‘앱 관리’로 되어 있는 역할을 모두 제거해줍니다.
+
+### 앱 이전 신청
+
+대충 이런 번거롭지만 귀찮은 작업을 해주다보면 아래 처럼 기준 충족되는거 볼 수 있어요.
+
+처음에 이것 때문에 좀 시간을 쏟았다.. 아니 뭐가 문제인지 정확하게 알려주는게 아니니 눈치껏 잘 조건 맞춰야 함 ㅎ
+
+![](https://velog.velcdn.com/images/bbahna/post/efb0397a-7b25-41a4-8739-bd87f21830be/image.png)
+
+![](https://velog.velcdn.com/images/bbahna/post/fa410876-d498-4329-8168-29afefa51a56/image.png)
+
+대충 이렇게 계속 버튼 누르고
+
+![](https://velog.velcdn.com/images/bbahna/post/18951750-6a0d-41e4-8c67-df4df208bcf8/image.png)
+
+이전하려는 계정 id와 팀 id 입력해주고
+
+![](https://velog.velcdn.com/images/bbahna/post/271ef5fe-0beb-44db-9358-7b52d3b966d9/image.png)
+
+![](https://velog.velcdn.com/images/bbahna/post/eb0154ba-58ca-404a-bf48-e2b7a84ba6c7/image.png)
+
+약관 설정을 읽고 동의 후 이전 요청 버튼을 클릭해주면 정상 완료 !
+
+![](https://velog.velcdn.com/images/bbahna/post/1ffa9803-a723-4b7f-9d2b-fe7398511d28/image.png)
+
+이런 안내 안나올 수 있으니 다시 이전 신청 누르지 말고 새로고침 하시오. (페이지 진입 리프레시 안됨 이슈 있을 수 있음)
+
+### 이전 상태 확인
+
+이후 이전 신청 한 계정으로 비즈니스 탭에 들어갑니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/26645fe5-580b-47da-8005-391cf264309d/image.png)
+
+위처럼 1개의 작업 대기 중으로 뜨는 것을 확인할 수 있어요.
+
+![](https://velog.velcdn.com/images/bbahna/post/ed5f8d6f-d4a7-4965-87cc-e3cb3378cc49/image.png)
+
+하단 앱 이전을 보면 이전 받는 측 기다리는 중이라는 상태를 확인할 수 있죠?
+
+그럼 이전 이전 받는 측으로 로그인 해서 승인만 해주면 됩니다.
+
+## 이전 받는 측
+
+### 검토 승인
+
+![](https://velog.velcdn.com/images/bbahna/post/a7c0cb94-341d-4744-8830-685b8c4396c5/image.png)
+
+자 이렇게 B 계정으로 동일하게 비즈니스 탭으로 이동해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/37d9a9a6-a4d3-4803-94b6-734bc16770cb/image.png)
+
+동일하게 이전 받는 측 기다리는 중이라는 상태를 확인 할 수 있고 오른쪽엔 검토 버튼이 있지요?
+
+![](https://velog.velcdn.com/images/bbahna/post/3453dd15-140f-4d56-ae16-93806d7d9c4f/image.png)
+
+![](https://velog.velcdn.com/images/bbahna/post/899e63cd-abf2-49a9-90cd-cd8fafd5a595/image.png)
+
+내용을 입력해주고, 승인 버튼을 클릭해줍니다.
+
+이렇게 승인해주면 5분 이내로 완료되니 좀만 대기해주면 돼요.
+
+앱 심사는 쓸데없이 오래 걸리면서 앱 이관 이런건 자동 시스템인가봐요. 애플 답지 않게 겁나 빠릅니다
+
+### 앱 이전 확인
+
+![](https://velog.velcdn.com/images/bbahna/post/ca1c4736-25d2-4b01-8ecf-3e437f83c1e7/image.png)
+
+이관 후 A 계정에 있던 앱이 B 계정으로 옮겨진 것을 확인하였습니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/5358c990-4e77-4ff3-b9fc-e5c94ecfff27/image.png)
+
+마찬가지로 번들 id 또한 이동된 것을 확인하였습니다.
+
+휴 성공적인 이동 확인 !
+
+이렇게 조건이 맞다면 이관 자체는 쉽지만, 이관 전 내 앱에 apple 로그인과 firebase 푸시를 사용했다면 이 부분에서 문제가 생길 수 있어요. 이와 관련된 내용은 [이 글](https://velog.io/@bbahna/ios-transfer-apple-firebase)에서 확인할 수 있으니 많관부입니다~
