@@ -1,0 +1,208 @@
+---
+title: 'android 안드로이드 AppIcon 앱 아이콘, Splash 스플래시 설정 방법 - 이 글 하나로 어썸하게 정리 (부제: 다신 이 글 저 글 헤매지 않으리..)'
+description: '할 때마다 새로운 앱 아이콘, 스플래시 외에도 앱 생성 후 / 매번 설정하는 앱 이름, 세로 고정과 같은 부분도 정리해두었으니, 이 글 하나로 어썸하게 끝내시와요'
+date: '2025-11-25'
+tags:
+  [
+    'Android Studio',
+    'Androidmanifest',
+    'MainActivity',
+    'android',
+    'appIcon',
+    'app_name',
+    'apptheme',
+    'react native',
+    'screenOrientation',
+    'splash',
+    'splashscreen',
+    '모바일개발',
+  ]
+category: 'React Native'
+thumbnail: /posts/android-appIcon-splash.png
+---
+
+동일하게 안드로이드도 앱 아이콘 설정하는 방법에 대해 깔꼼하게 정리해보고자 합니다.
+
+다들 아시다시피 Android Studdio에 접속해 줍니다.
+
+내 프로젝트의 android를 열어주고 (난 react native 개발자라 그냥 이렇게 설명합니다)
+
+## AppIcon
+
+![](https://velog.velcdn.com/images/bbahna/post/45d88fe7-785f-4f78-96e5-2dc1e2383f93/image.png)
+
+app > res > New > Image Asset을 클릭해 줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/da1b9e61-df26-4e39-8060-fd41346e6d59/image.png)
+
+안녕 헬로월드?
+
+![](https://velog.velcdn.com/images/bbahna/post/b11595fc-ae8e-4a9e-8c4d-28c383c7a53c/image.png)
+
+Source Asset > Path에서 내 로컬 파일을 추가해 준 후, Scaling > Resize으로 적절히 크기를 조절해 줍니다.
+
+그 후 Background Layer 탭으로 이동 후 Color 값을 변경해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/9a1fc40d-fb8c-4511-9620-0910e9baa30d/image.png)
+
+기본 값인 #3DDC84에서 저의 경우 #FFFFFF 값으로 변경했습니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/011a1d3b-a795-4864-ab82-f0df9b42a4c8/image.png)
+
+Next 버튼을 클릭하면 위와 같이 보여지고, Finish 버튼을 클릭하면 아래처림 설정한 아이콘으로 변경됩니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/aecad540-322d-4cfe-bf44-b8d3160ed1a6/image.png)
+
+![](https://velog.velcdn.com/images/bbahna/post/860efa9c-b6ac-44b1-a532-fac8b05c0db4/image.png)
+
+## Splash
+
+자 다음 복병 스플래시 들어갑니다.
+
+사실 안드로이드 스플래시는 ios 앱 아이콘, 스플래시, android 앱 아이콘에 비해 많이 안해보긴 했지만
+
+이번에 설정하면서 아주 제대로 습득해버린 안드로이드 스플래시 설정 방법!
+
+1. 먼저 `android/app/build.gradle`에 androidx.core:core-splashscreen 의존성을 추가해 줍니다.
+
+   이 라이브러리는 android 12 이전 버전에서도 동일한 스플래시 화면을 제공합니다.
+
+   ```java
+   // android/app/build.gradle
+
+   dependencies {
+       // 여기에 추가
+       implementation("androidx.core:core-splashscreen:1.0.1")
+   }
+   ```
+
+2. 다음으로 `MainActivity`에 Splash Screen 설치 코드를 추가해줍니다.
+
+   ```kotlin
+   // android/app/src/main/java/kr/co/{project}/MainActivity.kt
+
+   import android.os.Bundle
+   import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+
+   class MainActivity : ReactActivity() {
+   	// 내부에 추가
+     override fun onCreate(savedInstanceState: Bundle?) {
+       // Install the splash screen before calling super.onCreate()
+       installSplashScreen()
+       super.onCreate(savedInstanceState)
+     }
+   }
+   ```
+
+3. `AndroidManifest.xml` 파일에서 안드로이드 테마를 스플래시 테마로 설정합니다.
+
+   ```xml
+   <!-- android/app/src/main/AndroidManifest.xml -->
+
+         <activity
+           android:theme="@style/Theme.App.SplashScreen"
+         >
+   	      (생략)
+         </activity>
+   ```
+
+4. `themes.xml`에 Splash Screen의 배경색, 로고, 브랜드 이미지를 정의하는 코드를 추가해 줍니다.
+
+   ```xml
+   <!-- android/app/src/main/res/values/themes.xml -->
+
+   <?xml version="1.0" encoding="utf-8"?>
+   <resources>
+       <!-- Splash Screen Theme -->
+       <style name="Theme.App.SplashScreen" parent="Theme.SplashScreen">
+           <!-- 스플래시 화면 배경색 -->
+           <item name="windowSplashScreenBackground">#F8F9FA</item>
+
+           <!-- 중앙에 표시될 아이콘 (필수) -->
+           <item name="windowSplashScreenAnimatedIcon">@drawable/splash_center</item>
+
+           <!-- 아이콘 배경색 (선택) -->
+           <!-- <item name="windowSplashScreenIconBackgroundColor">#FFFFFF</item> -->
+
+           <!-- 하단 브랜드 로고 (선택) -->
+           <!-- <item name="windowSplashScreenBrandingImage">@drawable/splash_bottom</item> -->
+
+           <!-- 스플래시 종료 후 적용될 테마 -->
+           <item name="postSplashScreenTheme">@style/AppTheme</item>
+       </style>
+   </resources>
+
+   ```
+
+   - `windowSplashScreenBackground`: 스플래시 화면 전체 배경색
+   - `windowSplashScreenAnimatedIcon`: 화면 중앙에 표시될 로고 이미지 (최대 크기: 288x288dp)
+   - `windowSplashScreenIconBackgroundColor`: 아이콘 뒤에 원형 배경을 추가하고 싶을 때 사용
+   - `windowSplashScreenBrandingImage`: 화면 하단에 표시될 브랜딩 이미지 (선택사항, Android 12부터는 권장하지 않음)
+   - `postSplashScreenTheme`: 스플래시가 종료된 후 적용될 앱의 기본 테마
+
+5. 마지막으로, `android/app/src/main/res/drawable/splash_center.png` 위치에 직사각형 로고를 추가해 줍니다.
+
+   저의 경우 직사각형의 로고로 적용했을 경우, 로고가 늘려지고 원형으로 마스킹 되는 현상이 발견되어 이렇게 정사각형으로 만들어서 넣어주었어요.
+
+![](https://velog.velcdn.com/images/bbahna/post/e6e236a8-2ddc-4a17-8132-1db50db2228a/image.png)
+
+### 동작 방식
+
+1. 앱이 시작되면 `Theme.App.SplashScreen` 테마가 적용된 스플래시 화면이 먼저 표시됩니다.
+2. React Native의 JavaScript 번들이 로드되는 동안 스플래시 화면이 유지됩니다.
+3. 앱이 완전히 준비되면 스플래시 화면이 페이드 아웃되며 `postSplashScreenTheme`에 정의된 기본 테마로 전환됩니다.
+
+이 방법으로 구현하면 Android 네이티브 가이드라인에 맞는 자연스러운 스플래시 스크린을 제공할 수 있습니다.
+
+## common settings
+
+위 앱 아이콘과 스플래시 외에 앱을 처음 개시하면 항상 세팅하게 되는 몇 가지가 있는데요,
+간단한 것들인데 항상 찾아보는 부분이라 이 글에 한 번에 정리해봅니다!
+
+이 외에 발견되는 간단한 것들은 주기적으로 업데이트 해놓을까해요.
+(하나의 글만 보고 모든 것을 해결하고픈 무조건적인 나의 편함을 위한 ㅋㅋ)
+
+### AppName
+
+```tsx
+// android/app/src/main/res/values/strings.xml
+
+<resources>
+	<string name="app_name">앱 이름</string> // 변경
+</resources>
+```
+
+기본 중에 기본인 앱 네임은 app_name 부분을 수정해주면 돼요.
+
+### screen 고정
+
+```tsx
+// android/app/src/main/AndroidManifest.xml
+
+<manifest>
+... 생략
+	<application>
+		<activity
+			android:screenOrientation="portrait"> // 추가
+```
+
+스크린 세로로 고정하는 부분도 동영상 플랫폼이 아닐 경우 꽤 자주 수정하는 부분인데요.
+AndroidManifest 파일의 activity 부분에 `android:screenOrientation="portrait"` 속성을 추가해주면 됩니다.
+
+### 시스템 테마 고정
+
+```tsx
+// android/app/src/main/res/values/styles.xml
+
+<resources>
+	<style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar"> // 변경
+		<item name="android:forceDarkAllowed">false</item> // 추가
+```
+
+시스템 테마를 라이트로 고정하는 것도 시스템 알람을 사용할 때 ui가 어색하게 보일 수 있어 자주 추가하게되는 부분입니다.
+
+`AppTheme`를 Light로 변경해주고, `forceDarkAllowed` 속성을 false로 설정하는 코드를 추가해줍니다.
+
+생각보다 어렵지 않쥬?
+
+![](https://velog.velcdn.com/images/bbahna/post/c212866c-7d51-486e-bf2d-8553d809f23b/image.png)
