@@ -1,0 +1,208 @@
+---
+title: 'ios 아이폰 AppIcon 앱 아이콘, Splash 스플래시 설정 방법 - 이 글 하나로 깔끔하게 정리 (부제: 다신 이 글 저 글 찾아보지 않으리..)'
+description: '맨날 처음 하는 것 같은 앱 아이콘, 스플래시 외에도 앱 생성 후 / 매번 설정하는 앱 이름, 세로 고정과 같은 부분도 정리해두었으니, 이 글 하나로 깔꼼하게 끝내시와요'
+date: '2025-11-25'
+tags:
+  [
+    'AppDelegate',
+    'UIIamgeView',
+    'UIInterfaceOrientationPortrait',
+    'Xcode',
+    'appIcon',
+    'app_name',
+    'apptheme',
+    'iOS',
+    'iphone',
+    'react native',
+    'splash',
+    'swift',
+    '모바일개발',
+  ]
+category: 'React Native'
+thumbnail: /posts/ios-appIcon-splash.png
+---
+
+아이폰용 앱을 개발할 떄는 앱 아이콘과 스플래시 이미지 설정하는 작업은 필수적으로 항상 진행한다.
+
+하지만 그리 자주 하는 작업이 아니다 보니 매번 블로그를 찾아보거나 헤맬 떄가 있어서 내가 찾아보기 편하기 위해 작성해 본다.
+
+이 글을 보는 모든 분들도 이 어렵지 않은 작업 떄문에 헤매지 않길 바랍니다.
+
+- 기술 스택: React Native, Swift, Xcode 16.3v
+
+## AppIcon
+
+![](https://velog.velcdn.com/images/bbahna/post/962cb1bb-9fb7-4ca5-b45c-8d950ea4aeed/image.png)
+
+앱 아이콘은 Xcode의 Images에서 쉽게 설정할 수 있다. 클릭하면 위 사진처럼 AppIcon을 설정할 수 있는 화면이 보인다
+
+`ios/{project}/Images.xcassets/AppIcon.appiconset/Contents.json` 코드에서도 설정할 수는 있지만
+
+Xcode GUI를 활용하면 훨씬 쉽고 간단하게 끝낼 수 있다.
+
+![](https://velog.velcdn.com/images/bbahna/post/ed2bba4a-2d2b-4057-bfa2-b11d8584c5ee/image.png)
+
+나의 경우 테스트 플라이트 업로드를 위해 필수적인 120px과 1024px만 우선 추가해 두었다.
+
+위 사진처럼 이미지를 드래그해서 넣어주면 아래처럼 자동으로 코드가 바뀐다.
+
+![](https://velog.velcdn.com/images/bbahna/post/983a8ad6-8a75-46f3-913f-d40d812bd55e/image.png)
+
+특정 크기의 filename이 내가 지정한 파일명 대로 자동으로 적용이 되고, 파일도 알아서 복사해서 동일한 위치에 추가된다.
+
+![](https://velog.velcdn.com/images/bbahna/post/82861841-fcac-4ffa-9fb9-6d81de537731/image.png)
+
+이대로 커밋만 하면 참 ~ 어렵지 않쥬?
+
+## Splash
+
+그럼 다음 복병 스플래시 화면 들어갑니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/5340323b-af15-4a17-b2ae-8a4fe7c5fe9f/image.png)
+
+React native의 경우 기본 스플래시는 위와 같이 보여요.
+
+프로젝트 이름 텍스트와 하단에 Powered by React Native 텍스트 !
+
+일단 저는 디자인팀에게 전달받은 스플래시 이미지를 통으로 넣으려고 합니다.
+
+직접 이미지와 텍스트를 넣기 보다는 현업에서는 디자인 파일을 전달받아서 넣는 경우가 더 많은 것 같아요.
+
+![](https://velog.velcdn.com/images/bbahna/post/ab8855dd-1001-4b96-8743-1c118f778d1b/image.png)
+
+우선 오른쪽 Image에서 마우스 오르쪽 버튼을 눌러서 New Image Set으로 이미지를 추가해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/bcb3f2e0-661b-433f-ac22-0d8a13e94a61/image.png)
+
+이렇게 추가되면 처음 보이는데, 이름을 그냥 알아보기 좋게 Splash 정도로 변경해주고
+
+![](https://velog.velcdn.com/images/bbahna/post/64ef1158-87c7-4f01-8130-f63fa9df5e92/image.png)
+
+2x 3x 이런거 없이 그냥 1x에만 가진 이미지 드래그해서 넣어줍니다. (기찮,,)
+
+![](https://velog.velcdn.com/images/bbahna/post/184e1256-ed92-4510-a99e-5805faf0432a/image.png)
+
+그렇게 다시 왼쪽 LanchScreen으로 이동해주고
+
+쓸데없는 프로젝트 이름 텍스트와 하단에 Powered by React Native 텍스트 없애줍니다.
+
+사진처럼 View 안에 Safe Area만 깔끔히 남은 모습 ㅎㅎ
+
+![](https://velog.velcdn.com/images/bbahna/post/f44095da-43f6-48f9-b3c9-56302e340622/image.png)
+
+이제 위에서 만들어준 스플래시용 이미지셋을 넣기 위해
+
+오른쪽 위에 + 버튼을 클릭한 후, Image를 검색하고, 클릭하지 말고 드래그\*하면 화면에 이렇게 추가됩니다.
+
+처음에 클릭해서 외 안돼;; 했던 경험이..
+
+![](https://velog.velcdn.com/images/bbahna/post/7df4643c-0d97-4103-816b-9f50065b77e4/image.png)
+
+대충 가운데에 적절하게 배치를 해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/70f9ada5-0c9f-4765-ad6c-4edde122a10d/image.png)
+
+그 후 UIIamgeView 클릭해서 오른쪽 사이드바에 Image에 추가해둔 Splash를 클릭해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/a1e04546-80e0-4c6d-8fc9-97c1e43bf3f0/image.png)
+
+스플래시 이미지를 가로세로 중앙에 적절하게 배치해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/936585be-2401-4c91-ab6f-7c911403b58a/image.png)
+
+하단에 다양한 디바이스로 문제 없는지 확인해봅니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/09ddb412-24e8-49e7-bd8e-d1d80d68022f/image.png)
+
+으엥 나한테 왜 이러니.. 디바이스를 바꾸니 오른쪽 아래의 이미지가 잘리는 현상 발생
+
+하지만 이건 아주 흔하게 발생하는 현상이에요. (당황해 보이지만 당황하지 않음)
+
+일단 다시 가운데로 맞춰놓은 디바이스로 돌아갑니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/424c2689-8201-4c3c-afda-2320d861d4b6/image.png)
+
+그 후 오른쪽 툴바에서 Autoresizing을 사진처럼 가로세로 둘 다 가운데 정렬로 맞춰줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/457e5125-e61a-4f61-82eb-15497c828fc3/image.png)
+
+그렇게 변경해주면 디바이스가 변경되어도 사진처럼 이미지가 정중앙으로 정렬됩니다. ! 해결 완~
+
+![](https://velog.velcdn.com/images/bbahna/post/20d8098b-bc0c-45c9-b5d0-f2fbee924ead/image.png)
+
+요렇게 Xcode에서 바꿔주면 코드도 알아서 바뀌어져 있어서 커밋까지 깔끔하게 해주면 완벼쿠 !
+
+++ 저의 경우 `ios/xten/AppDelegate.swift` 파일에 `sleep(3)` 코드를 추가해서 스플래시 유지 시간을 추가해주었어요.
+
+```swift
+class AppDelegate: UIResponder, UIApplicationDelegate {
+  var window: UIWindow?
+
+  var reactNativeDelegate: ReactNativeDelegate?
+  var reactNativeFactory: RCTReactNativeFactory?
+
+  func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+
+    // (생략..)
+
+    sleep(2) // 스플래시 2초 딜레이
+
+    return true
+  }
+}
+```
+
+## common settings
+
+위 앱 아이콘과 스플래시 외에 앱을 처음 개시하면 항상 세팅하게 되는 몇 가지가 있는데요,
+간단한 것들인데 항상 찾아보는 부분이라 이 글에 한 번에 정리해봅니다!
+
+이 외에 발견되는 간단한 것들은 주기적으로 업데이트 해놓을까해요.
+(하나의 글만 보고 모든 것을 해결하고픈 무조건적인 나의 편함을 위한 ㅋㅋ)
+
+### AppName
+
+```tsx
+// ios/{project}/Info.plist
+
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>앱 이름</string> // 변경
+```
+
+기본 중에 기본인 앱 네임은 Info.plist 파일의 CFBundleDisplayName 부분을 수정해주면 돼요.
+
+### screen 고정
+
+```tsx
+// ios/{project}/Info.plist
+
+<dict>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string> // 삭제
+		<string>UIInterfaceOrientationLandscapeRight</string> // 삭제
+	</array>
+```
+
+스크린 세로로 고정하는 부분도 동영상 플랫폼이 아닐 경우 꽤 자주 수정하는 부분인데요.
+
+앱 설치 시 기본으로 설정되어 있는 부분이라 `UIInterfaceOrientationPortrait` 항목만 두고, `UIInterfaceOrientationLandscapeLeft`와 `UIInterfaceOrientationLandscapeRight`은 삭제합니다.
+
+### 시스템 테마 고정
+
+```tsx
+// ios/{project}/Info.plist
+
+<dict>(<key>UIUserInterfaceStyle) < /key> / / 추가 < string > Light < /string> / / 추가;
+```
+
+시스템 테마를 라이트로 고정하는 것도 시스템 알람을 사용할 때 ui가 어색하게 보일 수 있어 자주 추가하게되는 부분입니다.
+`UIUserInterfaceStyle` key 추가 후 `Light` string 설정해 줍니다.
+
+ios는 `Info.plist` 파일에서 전부 적용하면 돼서 편하쥬?
+
+![](https://velog.velcdn.com/images/bbahna/post/8852802b-7d71-4ed0-8a0b-1391baf7dd44/image.png)
