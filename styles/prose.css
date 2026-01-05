@@ -44,3 +44,7 @@
 .prose hr {
 	@apply my-10 border-stone-300 dark:border-stone-700;
 }
+
+.prose img {
+	@apply mx-auto;
+}

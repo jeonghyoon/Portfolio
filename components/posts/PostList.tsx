@@ -20,7 +20,7 @@ const PostList = ({ post, slug, isWide }: postProps) => {
 			<div className="relative p-2 my-2 duration-150 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-800">
 				{post.thumbnail && (
 					<div
-						className={`absolute top-[2px] right-2 w-[120px] h-[73px] overflow-hidden ${
+						className={`absolute top-[2px] right-2 w-[120px] h-[72px] max-h-[280px] overflow-hidden rounded-lg border theme-border-light flex items-center justify-center ${
 							isWide ? 'max-md:static max-md:w-auto max-md:h-auto mb-[12px]' : ''
 						}`}
 					>
@@ -28,8 +28,8 @@ const PostList = ({ post, slug, isWide }: postProps) => {
 							src={post.thumbnail}
 							alt="썸네일 이미지"
 							width={isWide ? 600 : 200}
-							height={isWide ? 300 : 80}
-							className="w-full h-auto rounded-lg border theme-border-light object-cover"
+							height={isWide ? 300 : 75}
+							className="w-full h-auto object-cover"
 						/>
 					</div>
 				)}
