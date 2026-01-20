@@ -7,6 +7,7 @@ import { NextSeo } from 'next-seo';
 import linkdata from '@/data/linkdata';
 import { firebaseLogging } from '@/firebase/logEvent';
 import CopyLinkBtn from '@/components/posts/CopyLinkBtn';
+import MailtoBtn from '@/components/posts/MailtoBtn';
 
 const Index = () => {
 	const meta = {
@@ -26,6 +27,7 @@ const Index = () => {
 			<div className="max-w-[460px] flex flex-col items-center w-full min-h-screen px-5 py-8 m-auto">
 				<div className="flex items-center justify-between w-full mb-2">
 					<CopyLinkBtn containerStyle="bg-white w-[30px] h-[30px]" copyIconColor="#333" checkIconColor="#14b8a6" />
+					<MailtoBtn containerStyle="bg-white w-[30px] h-[30px] hover-effect" iconColor="#555" />
 				</div>
 				<div className="flex flex-col items-center flex-1 w-full mb-5">
 					<Image
