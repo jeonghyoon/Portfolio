@@ -5,10 +5,16 @@ import Link from 'next/link';
 import { NextSeo } from 'next-seo';
 
 import linkdata from '@/data/linkdata';
-import CopyLinkBtn from '@/components/posts/CopyLinkBtn';
 import { firebaseLogging } from '@/firebase/logEvent';
+import CopyLinkBtn from '@/components/posts/CopyLinkBtn';
 
 const Index = () => {
+	const meta = {
+		title: '프론트엔드 개발자 효동동',
+		description: '디자인도 하고 웹도 만들고 앱도 만드는 새럼',
+		image: '/main.jpg',
+	};
+
 	useEffect(() => {
 		firebaseLogging('index_load');
 		window.localStorage.setItem('theme', 'light');
@@ -16,38 +22,24 @@ const Index = () => {
 
 	return (
 		<div className="flex flex-col min-h-screen m-auto bg-gray-100">
-			<NextSeo
-				title="프론트엔드 개발자 효동동"
-				description="디자인도 하고 웹도 만들고 앱도 만드는 새럼"
-				openGraph={{ images: [{ url: '/main.jpg' }] }}
-			/>
+			<NextSeo title={meta.title} description={meta.description} openGraph={{ images: [{ url: meta.image }] }} />
 			<div className="max-w-[460px] flex flex-col items-center w-full min-h-screen px-5 py-8 m-auto">
 				<div className="flex items-center justify-between w-full mb-2">
-					<a className="duration-200 rounded-2xl hover-effect">
-						<CopyLinkBtn containerStyle="bg-white w-[30px] h-[30px]" copyIconColor="#333" checkIconColor="#14b8a6" />
-					</a>
-					{/* <a
-						className="content-center p-[7px] text-xs tracking-wide duration-200 bg-white rounded-2xl dark:text-zinc-800 hover-effect cursor-pointer"
-						onClick={() => {
-							window.alert('조금만 기다려 주세요 ෆ⸒⸒');
-						}}
-					>
-						구독
-					</a> */}
+					<CopyLinkBtn containerStyle="bg-white w-[30px] h-[30px]" copyIconColor="#333" checkIconColor="#14b8a6" />
 				</div>
 				<div className="flex flex-col items-center flex-1 w-full mb-5">
 					<Image
-						src="/main.jpg"
+						src={meta.image}
 						alt="프로필_이미지"
 						width={500}
 						height={500}
 						className="w-[100px] h-[100px] rounded-[30px] mb-6"
 					/>
 					<h1 className="relative mb-3 text-xl font-bold dark:text-zinc-800">
-						프론트엔드 개발자 효동동
+						{meta.title}
 						<span className="absolute bottom-0 right-0 h-[6px] opacity-40 w-[58px] bg-[#63C7C2]" />
 					</h1>
-					<p className="mb-5 text-sm dark:text-zinc-700 text-zinc-700">디자인도 하고 웹도 만들고 앱도 만드는 새럼</p>
+					<p className="mb-5 text-sm dark:text-zinc-700 text-zinc-700">{meta.description}</p>
 					{linkdata.map((data) => (
 						<Link
 							href={data.link}

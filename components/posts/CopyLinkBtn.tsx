@@ -27,7 +27,8 @@ const CopyLinkBtn = ({
 		};
 	}, [copied]);
 
-	const handleCopy = async () => {
+	const handleCopy = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+		e.preventDefault();
 		const url = window.document.location.href;
 
 		try {
@@ -45,7 +46,12 @@ const CopyLinkBtn = ({
 	};
 
 	return (
-		<button aria-label="icon-button" onClick={handleCopy} className={`rounded-full ${containerStyle}`}>
+		<a
+			href="#"
+			aria-label="icon-button"
+			onClick={handleCopy}
+			className={`rounded-full flex items-center justify-center ${containerStyle}`}
+		>
 			{copied ? (
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +82,7 @@ const CopyLinkBtn = ({
 					/>
 				</svg>
 			)}
-		</button>
+		</a>
 	);
 };
 
