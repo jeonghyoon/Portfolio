@@ -4,8 +4,9 @@ import type { Analytics } from 'firebase/analytics';
 
 export const initFirebase = () => {};
 
+const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 const firebaseConfig = {
-	apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+	apiKey: apiKey,
 	authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
 	projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
 	storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
@@ -20,7 +21,7 @@ export let analytics: Analytics | null = null;
 
 if (typeof window !== 'undefined') {
 	isSupported().then((supported) => {
-		if (supported && app) {
+		if (apiKey && supported && app) {
 			console.log('Firebase Analytics is supported in this environment');
 			analytics = getAnalytics(app);
 		} else {
