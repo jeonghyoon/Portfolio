@@ -14,7 +14,7 @@ const Post = ({ post }: InferGetStaticPropsType<typeof getStaticProps>) => {
 	return (
 		<Container>
 			<NextSeo
-				title={`Hyoon - Posts : ${post?.title}`}
+				title={`${post?.title} | Hyoon`}
 				description={post?.description}
 				openGraph={{ images: [{ url: post?.thumbnail ? post.thumbnail : '' }] }}
 			/>

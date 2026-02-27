@@ -13,7 +13,7 @@ const Notfound = () => {
 
 	return (
 		<Container>
-			<NextSeo title="Hyoon - 404" description="잘못된 경로입니다." />
+			<NextSeo title="404 | Hyoon" description="잘못된 경로입니다." />
 			<Title main="🚫 404" description="잘못된 경로입니다." />
 			<Link href="/home" onClick={() => firebaseLogging('404_home_click')}>
 				<div className="block p-2 text-sm border rounded-md theme-border-light theme-border-hover-light theme-bg-hover">
