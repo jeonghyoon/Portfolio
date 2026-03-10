@@ -21,7 +21,7 @@ const MailtoBtn = ({
 	return (
 		<a
 			aria-label="icon-button"
-			href="mailto:jeongyoon.dev@gmail.com"
+			href="mailto:hyoon.dev@gmail.com"
 			onClick={handleMailto}
 			className={`rounded-full flex items-center justify-center ${containerStyle}`}
 		>
