@@ -39,7 +39,7 @@ const Index = () => {
 					/>
 					<h1 className="relative mb-3 text-xl font-bold dark:text-zinc-800">
 						{meta.title}
-						<span className="absolute bottom-0 right-0 h-[6px] opacity-40 w-[58px] bg-[#63C7C2]" />
+						<span className="absolute bottom-0 right-0 h-[6px] opacity-40 w-[60px] bg-[#63C7C2]" />
 					</h1>
 					<p className="mb-5 text-sm dark:text-zinc-700 text-zinc-700">{meta.description}</p>
 					{linkdata.map((data) => (
@@ -50,7 +50,7 @@ const Index = () => {
 							target={data.link == '/home' ? '' : '_blank'}
 							onClick={() => firebaseLogging(`index_${data.title}_click`)}
 						>
-							<div className="flex flex-row items-center p-4 mb-3 duration-300 bg-white rounded-xl dark:bg-white shadow-jsx hover:bg-[#9aefeb]">
+							<div className="flex flex-row items-center p-4 mb-3 duration-300 bg-white rounded-xl dark:bg-white shadow-jsx hover:bg-[#9aefeb] max-lg:hover:bg-white">
 								<div className="mr-4 w-[72px] h-[72px] overflow-hidden rounded-md flex justify-center">
 									<Image src={data.image} alt="로고" width={500} height={500} className="max-w-none w-auto h-[72px]" />
 								</div>

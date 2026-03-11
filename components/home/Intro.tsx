@@ -6,7 +6,7 @@ const Intro = () => {
 		<div className="flex items-center justify-center px-2 max-lg:flex-col">
 			{/* 메인 이미지 */}
 			<div
-				className={`max-md:w-full max-md:h-[46vw] w-[400px] h-[200px] bg-no-repeat bg-cover bg-[url('/og_image_white.png')] dark:bg-[url('/og_image.png')]`}
+				className={`max-md:w-full max-md:h-[46vw] w-[400px] h-[200px] bg-no-repeat bg-cover bg-[url('/og_image_wt.png')] dark:bg-[url('/og_image.png')]`}
 			/>
 			<div className="mt-5 lg:ml-7">
 				<h2 className="mb-2 text-[19px]">
