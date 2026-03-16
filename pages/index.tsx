@@ -11,7 +11,7 @@ import MailtoBtn from '@/components/posts/MailtoBtn';
 
 const Index = () => {
 	const meta = {
-		title: '프론트엔드 개발자 효동동 | Hyoon',
+		title: '풀스택 개발자 효동동 | Hyoon',
 		description: '디자인도 하고 웹도 만들고 앱도 만드는 새럼',
 		image: '/main.jpg',
 	};

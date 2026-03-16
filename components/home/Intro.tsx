@@ -11,7 +11,7 @@ const Intro = () => {
 			<div className="mt-5 lg:ml-7">
 				<h2 className="mb-2 text-[19px]">
 					안녕하세요.{` `}
-					<span className="font-medium">프론트엔드 개발자</span> 윤효정입니다.
+					<span className="font-medium">풀스택 개발자</span> 윤효정입니다.
 					<br />
 				</h2>
 				<h3 className="mb-4 text-base ">
