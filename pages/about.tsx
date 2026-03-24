@@ -34,15 +34,13 @@ const About = () => {
 					<h2 className="mb-3 text-2xl font-semibold theme-text-2">Interested in Tech</h2>
 					<ul className="ml-2">
 						<li>
-							🖥 <span className="font-medium">Client</span>: JS, TS, React, Next, RN
+							🖥 <span className="font-medium">Client</span>: JS, TS, React, Next, React Native
 						</li>
 						<li>
-							{/* 🗂️ <span className="font-medium">Server</span>: Spring Boot, Nest.js, MySQL, PostgreSQL */}
-							🗂️ <span className="font-medium">Server</span>: Node, Nest, PostgreSQL
+							🗂️ <span className="font-medium">Server</span>: Spring Boot, Nest, MySQL, PostgreSQL
 						</li>
 						<li>
-							{/* 🌎 <span className="font-medium">Infra</span>: NCP, AWS, K8s, Docker */}
-							🌎 <span className="font-medium">Infra</span>: NCP, K8s, Docker
+							🌎 <span className="font-medium">Infra</span>: NCP, AWS, K8s, Docker
 						</li>
 					</ul>
 				</div>
