@@ -1,0 +1,151 @@
+---
+title: 'React Native 앱-웹뷰 로그인 연동: iOS Cookie 유실 문제 해결하기'
+description: 'iOS에서 앱을 종료하면 쿠키가 사라진다?'
+date: '2026-03-27'
+tags: ['react native', 'webview', 'cookie', 'iOS', 'CookieManager', 'AsyncStorage', '로그인', '인증']
+category: 'React Native'
+thumbnail: /posts/rn-webview-cookielogin.png
+---
+
+앱을 개발하다 보면 특정 페이지를 웹뷰로 띄우는 경우가 꽤 많아요.
+
+앱과 웹이 공유하는 화면인데 로그인 인증이 되어 있는 것 처럼 보여야 하는 상황도 필요해요.
+
+이때 어떻게 로그인 인증을 처리해야 하며, 쿠키로 로그인 인증을 처리할 때 발생할 수 있는 문제점은 무엇인지 알아볼게요.
+
+## 앱-웹뷰 로그인 인증 연동
+
+앱에서 웹뷰의 로그인 인증을 연동하는 방법 중 하나는 **쿠키를 공유**하는 방식이에요.
+
+로그인 API 서버는 인증에 성공하면 accessToken을 응답으로 반환하고, 지정된 도메인(`.myapp.com`)에 refreshToken을 쿠키로 심어줍니다.
+
+- **accessToken**: 클라이언트에서 저장해 두고, API 요청 시 `Authorization` 헤더에 담아 사용자 인증을 진행합니다.
+- **refreshToken**: 지정된 도메인의 쿠키에만 저장되며, accessToken이 만료되면 재발급 요청 시 서버가 이 쿠키를 읽어 새 accessToken을 발급합니다.
+
+클라이언트와 서버가 같은 도메인을 공유하는 구조라면, 웹뷰에서도 해당 도메인 쿠키가 자동으로 전송되기 때문에 별도 처리 없이 로그인 상태가 유지돼요.
+
+## iOS 쿠키 유실 문제
+
+이때 iOS에서 앱을 스와이프로 완전히 종료 후 재실행 하면 WebView에 설정된 쿠키가 유실되는 문제가 발생해요.
+
+앱을 다시 실행하면 accessToken은 AsyncStorage에 저장해두어서 일반 API 호출은 잘 되지만, 쿠키가 유실된 탓에 accessToken 재발급 요청 시 401 에러가 발생합니다.
+
+### 왜 유실될까? 세션 쿠키 vs 영구 쿠키
+
+원인은 iOS의 쿠키 보존 정책에 있어요. iOS는 서버로부터 `Set-Cookie` 헤더를 받을 때, 쿠키의 만료 속성에 따라 저장 방식을 다르게 처리합니다.
+
+- **세션 쿠키**: `Max-Age`나 `Expires` 속성이 없거나 음수(`-1`)로 설정된 쿠키예요. iOS는 이 쿠키를 디스크가 아닌 **RAM(메모리)에만** 저장해요. 앱을 스와이프로 완전히 종료하면 프로세스가 죽으면서 RAM도 함께 비워지기 때문에 쿠키가 사라집니다.
+- **영구 쿠키**: `Max-Age=2592000`(30일)처럼 명확한 만료 시점이 지정된 쿠키예요. iOS는 이 쿠키를 앱 샌드박스의 `Library/Cookies/Cookies.binarycookies` 파일에 저장해요. 앱을 종료하거나 기기를 재부팅해도 파일이 남아있기 때문에 쿠키가 유지됩니다.
+
+제 프로젝트에서 서버에서 refreshToken 쿠키를 `Max-Age=-1`로 설정했기에 세션 쿠키로 처리되어, 앱을 날리는 순간 쿠키도 함께 사라졌던 거예요.
+
+서버에서 `Max-Age`를 양수로 설정했다면 iOS가 알아서 디스크에 저장해 주기 때문에 이런 문제가 발생하지 않아요. 이와 같은 경우에 앱에서 직접 쿠키를 백업하고 복원하는 방법으로 해결할 수 있습니다.
+
+(Android는 이런 문제가 없어요. 따라서 iOS만 처리가 필요합니다.)
+
+## 해결 방법
+
+핵심은 두 가지예요.
+
+1. 로그인 시 refreshToken 쿠키를 AsyncStorage에 저장해 두기
+2. 앱 재실행 시 저장해 둔 쿠키를 CookieManager로 다시 심어주기
+
+### Step 1: 로그인 후 쿠키 가져와서 저장하기
+
+`@react-native-cookies/cookies`의 CookieManager를 사용했어요. (ios만 지원)
+
+로그인 API 호출 후 iOS일 때만 잠깐 0x0 크기의 WebView를 렌더링해서 쿠키를 가져옵니다. 렌더링이 끝나면(`onLoadEnd`) CookieManager로 쿠키를 읽고 AsyncStorage에 저장해요.
+
+```tsx
+const [isLoadingCookies, setIsLoadingCookies] = useState(false);
+
+// 로그인 성공 시 웹뷰로 부터 쿠키를 가져와서 AsyncStorage에 저장
+const getCookiesFromWebView = async () => {
+	try {
+		const cookies = await CookieManager.getAll(true);
+		const refreshToken = cookies.refreshCookie ? cookies.refreshCookie.value : undefined;
+		if (refreshToken) {
+			await AsyncStorage.setItem('refreshCookie', refreshToken);
+			return true;
+		}
+		return false;
+	} catch (error) {
+		console.error('Failed to get cookies:', error);
+		return false;
+	} finally {
+		setIsLoadingCookies(false);
+	}
+};
+
+// 로그인 로직
+const fnReqLogin = async () => {
+	const res = await postAuthenticate({ username, password });
+
+	if (res) {
+		await AsyncStorage.setItem('accessToken', res.accessToken); // 로그인 토큰 저장
+
+		// iOS일 경우 쿠키 저장 로직 실행
+		if (Platform.OS === 'ios') {
+			setIsLoadingCookies(true);
+		} else {
+			// android는 쿠키 저장 로직이 필요 없어서 바로 finishLogin 호출
+			finishLogin();
+		}
+	}
+};
+
+// 쿠키를 가져오기 위한 숨겨진 WebView - setIsLoadingCookies(true) 실행 시 작동
+{
+	isLoadingCookies && (
+		<WebView
+			source={{ uri: 'https://myapp.com' }}
+			style={{ width: 0, height: 0 }}
+			sharedCookiesEnabled={true}
+			thirdPartyCookiesEnabled={true}
+			onLoadEnd={async () => {
+				const hasRefreshToken = await getCookiesFromWebView();
+				if (hasRefreshToken) {
+					// 쿠키를 성공적으로 가져왔다면 finishLogin 호출
+					finishLogin();
+				}
+			}}
+		/>
+	);
+}
+```
+
+포인트는 `sharedCookiesEnabled`와 `thirdPartyCookiesEnabled`를 모두 `true`로 설정해야 한다는 거예요. 이 옵션이 없으면 쿠키를 읽어오지 못합니다.
+
+### Step 2: 앱 재실행 시 쿠키 복원하기
+
+앱이 다시 실행될 때 AsyncStorage에 저장해 둔 값으로 쿠키를 다시 설정해 줍니다.
+
+```tsx
+const { value: refreshValue } = useAppAsyncStorage('refreshCookie');
+
+// 앱 초기화 시 실행 (accessToken 재발급 요청 시 필요)
+if (refreshValue && Platform.OS === 'ios') {
+	await CookieManager.set('https://myapp.com', {
+		name: 'refreshCookie', // 지정된 이름으로 설정
+		value: refreshValue,
+		domain: '.myapp.com',
+		path: '/',
+		secure: true,
+		httpOnly: true,
+	});
+}
+```
+
+`CookieManager.set`의 두 번째 인자 옵션들이 중요한데, 특히 `domain`을 `.myapp.com`처럼 앞에 `.`을 붙여서 서브도메인에서도 쿠키가 공유되도록 해줘야 해요.
+
+## 정리
+
+1. [로그인 직후 (iOS)] 숨겨진 WebView로 쿠키 읽어서 AsyncStorage 저장
+
+2. [앱 재 실행 시 (iOS)] AsyncStorage 값으로 CookieManager 쿠키 복원
+
+iOS의 쿠키 유실 문제는 처음엔 꽤 당황스러웠는데, 원인을 파악하고 나면 해결책은 생각보다 명확하더라구요.
+
+Android는 이런 문제가 없어서 `Platform.OS === 'ios'` 조건을 달아서 iOS에서만 동작하도록 분기 처리했습니다.
+
+비슷한 상황을 겪고 있다면 도움이 되길 바라요!
