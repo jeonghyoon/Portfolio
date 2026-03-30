@@ -37,7 +37,7 @@ const Post = ({ post }: InferGetStaticPropsType<typeof getStaticProps>) => {
 					</p>
 				</div>
 				{post?.thumbnail && (
-					<Image src={`${post?.thumbnail}`} width={800} height={600} className="w-full h-fit" alt="썸네일 이미지" />
+					<Image src={`${post?.thumbnail}`} width={1200} height={900} className="w-full h-fit" alt="썸네일 이미지" />
 				)}
 				<MDXComponent />
 				<div className="flex mt-8 border-t pt-7 theme-border-light">
