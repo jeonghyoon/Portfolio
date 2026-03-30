@@ -1,0 +1,170 @@
+---
+title: 'React Native 앱-웹뷰 토큰 연동: postMessage로 accessToken 주고받기'
+description: '앱과 웹뷰 사이에서 토큰을 어떻게 주고 받을까'
+date: '2026-03-30'
+tags: ['react native', 'webview', 'postMessage', 'accessToken', '로그인', '인증', '토큰만료', '세션종료']
+category: 'React Native'
+thumbnail: /posts/rn-webview-postmessage.png
+---
+
+앱에서 웹뷰를 사용할 때 가장 고민되는 부분 중 하나가 바로 로그인 인증 처리에요.
+
+앱은 AsyncStorage로 토큰을 관리하고, 웹은 쿠키로 토큰을 관리하는데 이 둘을 어떻게 연결할까?
+
+이 글에서는 `postMessage`를 활용해 앱↔웹뷰 간 토큰을 주고받는 방법과, 토큰 만료 처리까지 어떻게 구현했는지 공유해 볼게요.
+
+## 전체 흐름 한눈에 보기
+
+```
+[앱 로그인] → accessToken 발급
+     ↓
+[WebView 로드] → onLoadEnd로 웹에 postMessage로 토큰 전달
+     ↓
+[웹 AuthProvider] → 받은 토큰을 쿠키에 저장
+     ↓
+[accessToken 만료] → 웹이 앱에 getRefreshToken 요청
+     ↓
+[앱] → 리프레시 API 호출 후 새 토큰을 웹으로 전달
+```
+
+앱은 토큰을 갖고 있고, 웹은 앱에 의존해서 토큰을 받아 사용하는 구조예요.
+
+> 이 프로젝트에서는 서버에서 refreshToken 쿠키를 `Max-Age=30일`로 설정했기에, iOS가 이를 **영구 쿠키**로 인식해 디스크에 보관합니다. 앱을 재 실행해도 쿠키가 그대로 남아있어서 별도의 Cookie 복원 로직이 필요 없어요. (관련 포스트: [React Native 앱-웹뷰 로그인 연동: iOS Cookie 유실 문제 해결하기](rn-webview-cookie-login.md))
+
+## 로그인 처리
+
+### 앱 측 (React Native)
+
+로그인 API 응답으로 받은 accessToken은 AsyncStorage에 저장합니다.
+
+### 웹뷰 페이지 로드 후 토큰 전달
+
+웹뷰가 로드되면(`onLoadEnd`) 앱이 먼저 웹으로 accessToken을 보내줘요.
+
+```tsx
+const { value: accessToken } = useAppAsyncStorage('accessToken');
+
+const handleOnLoadEnd = async () => {
+  try {
+    const cookies =
+      Platform.OS === 'ios'
+        ? await CookieManager.get('https://myapp.com', true)
+        : {};
+
+    const webviewInitData = {
+      type: 'webviewInit',
+      data: {
+        cookies: { accessToken: cookies?.accessToken?.value || accessToken },
+      },
+    };
+    webviewRef.current?.postMessage(JSON.stringify(webviewInitData));
+  } catch (error) {
+    console.error('Failed to webviewInitData:', error);
+  }
+};
+
+<WebView onLoadEnd={handleOnLoadEnd} ... />
+```
+
+iOS는 CookieManager로 쿠키에서 토큰을 읽고, Android는 AsyncStorage에 저장한 accessToken을 사용해요.
+
+### 웹 측에서 토큰 수신 (Next.js)
+
+웹의 `AuthProvider`에서 message 이벤트를 리스닝하다가 `webviewInit` 타입 메시지를 받으면 토큰을 쿠키에 세팅해요.
+
+```tsx
+// src/app/_components/AuthProvider.tsx
+import { setCookie } from 'cookies-next/client';
+
+useEffect(() => {
+	const handleWebViewMessage = (event: Event) => {
+		const rawData = (event as MessageEvent).data;
+		const { type, data } = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+
+		if (type === 'webviewInit') {
+			const { cookies: receivedCookies } = data;
+
+			if (receivedCookies) {
+				setCookie('accessToken', receivedCookies?.accessToken, { maxAge });
+			}
+		}
+	};
+
+	// Android는 document, iOS는 window에 이벤트 등록
+	const messageTarget = window.ReactNativeWebView ? (/android/i.test(navigator.userAgent) ? document : window) : null;
+
+	if (messageTarget) {
+		messageTarget.addEventListener('message', handleWebViewMessage);
+	}
+	return () => {
+		if (messageTarget) {
+			messageTarget.removeEventListener('message', handleWebViewMessage);
+		}
+	};
+}, []);
+```
+
+참고로 Android와 iOS에서 message 이벤트를 등록하는 대상이 달라요.
+
+- Android: `document`에 이벤트 등록
+- iOS: `window`에 이벤트 등록
+
+## accessToken 만료 처리
+
+accessToken은 만료되면 401을 반환해요.
+
+웹은 리프레시 토큰을 갖고 있지 않기 때문에, 앱에 토큰 재발급을 요청합니다.
+
+### 웹 → 앱: 리프레시 요청
+
+공통 API 훅에서 401을 감지하면 앱으로 `getRefreshToken` 메시지를 보내고, 앱이 응답할 때까지 Promise로 대기해요.
+
+```tsx
+// 토큰 재발급 요청
+const requestRefreshToken = (): Promise<string> =>
+	new Promise((resolve, reject) => {
+		const timeout = setTimeout(() => {
+			window.removeEventListener('message', handler);
+			reject(new Error('토큰 요청 타임아웃'));
+		}, 10000);
+
+		const handler = (e: MessageEvent) => {
+			if (e.data.type !== 'accessToken') return;
+			clearTimeout(timeout);
+			window.removeEventListener('message', handler);
+			resolve(e.data.data);
+		};
+
+		window.addEventListener('message', handler);
+		rnwPost({ targetFunc: 'getRefreshToken' }); // 앱에 요청
+	});
+
+// 재발급 토큰 받아서 처리
+const newToken = await requestRefreshToken();
+setCookie('accessToken', newToken, { maxAge });
+```
+
+10초 내에 응답이 없으면 타임아웃 처리해요.
+
+### 앱 → 웹: 새 토큰 전달
+
+앱에서 `getRefreshToken` 메시지를 받으면 리프레시 API를 호출하고, 받은 토큰을 `injectJavaScript`로 웹에 전달합니다.
+
+```tsx
+case 'getRefreshToken': {
+  const newToken = await getRefreshToken();
+  const script = `
+    window.postMessage({ type: 'accessToken', data: '${newToken}' }, '*');
+  `;
+  webviewRef.current?.injectJavaScript(script);
+  break;
+}
+```
+
+## 마무리
+
+웹뷰와 앱 사이의 토큰 연동은 처음 설계할 때 어떻게 흐름을 잡을지가 제일 중요한 것 같아요.
+
+이 구조의 핵심은 **웹은 토큰을 직접 관리하지 않고 앱에 위임한다**는 것이에요. 웹에서 토큰이 필요한 모든 상황(토큰만료, 세션종료)을 앱으로 위임하니 관리 포인트가 앱 한 곳으로 집중되어 일관성 있게 처리할 수 있었어요.
+
+비슷한 구조를 설계하고 있다면 참고가 되길 바랍니다!
