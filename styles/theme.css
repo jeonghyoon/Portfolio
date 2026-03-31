@@ -89,6 +89,10 @@
 	@apply hover:text-[#7ADCD7] dark:hover:text-[#63C7C2];
 }
 
+.theme-text-group-hover {
+	@apply group-hover:text-[#7ADCD7] dark:group-hover:text-[#63C7C2];
+}
+
 /* 아이콘 색 */
 .theme-fill-black {
 	@apply fill-zinc-900 dark:fill-zinc-100;
