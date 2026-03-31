@@ -17,16 +17,19 @@ const Navigation = () => {
 			: headerRef.current?.classList.remove('theme-header-shadow');
 	};
 
-	const handleTheme = useCallback((theme?: boolean) => {
-		setIsDark((prev) => {
-			const changeTheme = theme ?? !prev;
+	const handleTheme = useCallback(
+		(theme?: boolean) => {
+			const changeTheme = theme ?? !isDark;
 			const themeColor = changeTheme ? 'dark' : 'light';
 			document.body.className = themeColor;
 			window.localStorage.setItem('dark', String(changeTheme));
-			firebaseLogging(`theme_${themeColor}_click`);
-			return changeTheme;
-		});
-	}, []);
+			setIsDark(changeTheme);
+			if (theme === undefined) {
+				firebaseLogging(`theme_${themeColor}_click`);
+			}
+		},
+		[isDark],
+	);
 
 	useEffect(() => {
 		const stored = window.localStorage.getItem('dark');
