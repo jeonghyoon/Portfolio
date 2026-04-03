@@ -1,0 +1,85 @@
+---
+title: 'android 카카오 로그인 kakao login error 해결 - Android keyHash validation failed.'
+description: '코드 문제가 아니라 카카오 개발자 콘솔 설정 문제입니다.'
+date: '2026-4-2'
+tags: ['Android', 'Kakao Developers', '카카오 로그인', 'keyHash', 'validation', 'error', 'React Native']
+category: 'React Native'
+thumbnail: /posts/android-kakao-login-error.png
+---
+
+`Android keyHash validation failed.` 에러는 코드 문제가 아니라 **카카오 개발자 콘솔 설정** 문제입니다.
+
+## **원인**
+
+`Android keyHash validation failed` = 카카오 앱 콘솔에 등록된 키 해시와 실제 앱의 키 해시가 불일치
+
+## **해결 방법**
+
+### **1. 현재 앱의 키 해시 확인**
+
+`MainActivity.kt` 또는 `MainActivity.java`에 실제 기기/에뮬레이터에서 키 해시 로그를 확인하는 코드를 추가해줍니다. (확인 후에는 지워도 돼요)
+
+```kotlin
+import android.content.pm.PackageManager
+import android.util.Base64
+import android.util.Log
+import java.security.MessageDigest
+
+override fun onCreate(savedInstanceState: Bundle?) {
+  // 생략
+  try {
+    val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+    for (signature in info.signatures) {
+      val md = MessageDigest.getInstance("SHA")
+      md.update(signature.toByteArray())
+      Log.d("KeyHash", Base64.encodeToString(md.digest(), Base64.DEFAULT))
+    }
+  } catch (e: Exception) {
+    Log.e("KeyHash", e.message ?: "error")
+  } // 추가
+}
+```
+
+이제 앱 실행 후, 로그에서 나오는 키 해시를 콘솔에 등록하면 해결됩니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/64469339-cb81-4b7f-a501-b3a6f35179f4/image.png)
+
+Logcat에서 `xxxxxxxxxxxxxxxxxxxxxxxx=` 같은 문자열이 출력됩니다.
+
+> 참고:
+>
+> `keytool -exportcert -alias androiddebugkey -keystore ~/.android/debug.keystore -storepass android -keypass android | openssl sha1 -binary | openssl base64`
+>
+> 전 위 명령어로 나오는 키로 적용해보았지만 문제가 해결되지 않아서,
+>
+> MainActivity에 코드를 넣어서 앱의 키 해시 확인하는 방법으로 해결했습니다.
+
+### **2. 카카오 개발자 콘솔에 등록**
+
+- [카카오 개발자 콘솔 → 앱](https://developers.kakao.com/console/app) > 앱 설정 > 앱 > 플랫폼 키 > 네이티브 앱 키 → Android 앱 정보에서 키 해시 추가
+
+![](https://velog.velcdn.com/images/bbahna/post/0f2ac95b-c468-471e-b526-2376a6c8177d/image.png)
+
+(Kakao Developers 메뉴가 바뀌어서 찾기에 시간이 조금 걸렸어요)
+
+[앱 설정 > 앱 > 플랫폼 키] 메뉴로 들어가줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/d3c92775-80fc-4db9-b277-c8cbf1a2aea8/image.png)
+
+네이티브 앱 키로 들어가줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/33667712-ff4d-4411-9012-cd2a840bb2bc/image.png)
+
+![](https://velog.velcdn.com/images/bbahna/post/d2026920-2f63-49d9-8b04-d0ff3868b050/image.png)
+
+스크롤 해서 Android 앱 정보에서 ‘키 해시’를 찾아줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/dca429a0-706b-49ec-9041-78c8e577a686/image.png)
+
+‘키 해시’에 로그에서 나오는 키 해시 값을 입력해줍니다.
+
+![](https://velog.velcdn.com/images/bbahna/post/45b70aea-333e-428b-a0a5-a97cda831305/image.png)
+
+제~일 하단에 저장 버튼은 꼭! 눌러줘야 해요.
+
+이렇게 해서 다시 카카오 로그인을 시도하면, 해당 에러는 해결됩니다~
