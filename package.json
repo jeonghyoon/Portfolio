@@ -1,44 +1,44 @@
 {
-  "name": "test",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
-  },
-  "dependencies": {
-    "@tailwindcss/typography": "^0.5.9",
-    "@types/node": "18.15.11",
-    "@types/react-dom": "18.0.11",
-    "autoprefixer": "10.4.14",
-    "contentlayer": "^0.3.1",
-    "eslint": "8.37.0",
-    "eslint-config-next": "13.3.0",
-    "firebase": "^12.0.0",
-    "next": "13.3.0",
-    "next-contentlayer": "^0.3.1",
-    "next-seo": "^6.1.0",
-    "postcss": "8.4.21",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "rehype-pretty-code": "^0.9.5",
-    "tailwindcss": "3.3.1",
-    "typescript": "5.0.3"
-  },
-  "devDependencies": {
-    "@storybook/addon-essentials": "^7.0.8",
-    "@storybook/addon-interactions": "^7.0.8",
-    "@storybook/addon-links": "^7.0.8",
-    "@storybook/blocks": "^7.0.8",
-    "@storybook/nextjs": "^7.0.8",
-    "@storybook/react": "^7.0.8",
-    "@storybook/testing-library": "^0.0.14-next.2",
-    "@types/react": "18.0.33",
-    "eslint-plugin-storybook": "^0.6.12",
-    "storybook": "^7.0.8"
-  }
+	"name": "test",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev -p 1228",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build"
+	},
+	"dependencies": {
+		"@tailwindcss/typography": "^0.5.9",
+		"@types/node": "18.15.11",
+		"@types/react-dom": "18.0.11",
+		"autoprefixer": "10.4.14",
+		"contentlayer": "^0.3.1",
+		"eslint": "8.37.0",
+		"eslint-config-next": "13.3.0",
+		"firebase": "^12.0.0",
+		"next": "13.3.0",
+		"next-contentlayer": "^0.3.1",
+		"next-seo": "^6.1.0",
+		"postcss": "8.4.21",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"rehype-pretty-code": "^0.9.5",
+		"tailwindcss": "3.3.1",
+		"typescript": "5.0.3"
+	},
+	"devDependencies": {
+		"@storybook/addon-essentials": "^7.0.8",
+		"@storybook/addon-interactions": "^7.0.8",
+		"@storybook/addon-links": "^7.0.8",
+		"@storybook/blocks": "^7.0.8",
+		"@storybook/nextjs": "^7.0.8",
+		"@storybook/react": "^7.0.8",
+		"@storybook/testing-library": "^0.0.14-next.2",
+		"@types/react": "18.0.33",
+		"eslint-plugin-storybook": "^0.6.12",
+		"storybook": "^7.0.8"
+	}
 }
